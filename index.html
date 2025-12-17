@@ -16,284 +16,447 @@
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 15px;
+            padding: 20px;
             display: flex;
             justify-content: center;
         }
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 800px;
             background: var(--white);
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
         }
 
         header {
-            border-bottom: 3px solid var(--primary);
-            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 25px;
             padding-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .section { display: none; }
-        .active { display: block; }
-
-        .phase-header {
-            background: #f8f9fa;
-            padding: 10px 15px;
-            border-left: 4px solid var(--primary);
-            margin: 20px 0;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.9rem;
+        .settings-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        #api-settings {
+            display: none;
+            background: #eee;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        h1 { color: var(--primary); margin: 0; font-size: 1.8rem; }
+        h2 { color: var(--primary); font-size: 1.3rem; margin-top: 20px; }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-group {
             margin-bottom: 20px;
         }
 
-        th, td {
-            border: 1px solid var(--border);
-            padding: 12px;
-            text-align: left;
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
         }
 
-        th {
-            background-color: #f1f2f6;
-            width: 30%;
-        }
-
-        .mandatory-box {
-            background: #fff5f5;
-            border: 2px solid var(--secondary);
-            padding: 15px;
-            border-radius: 6px;
-            margin: 15px 0;
-        }
-
-        textarea, input {
+        textarea, input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 1rem;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
             box-sizing: border-box;
+            font-size: 1rem;
         }
 
         button {
-            background: var(--primary);
+            background-color: var(--primary);
             color: white;
+            padding: 12px 24px;
             border: none;
-            padding: 12px 20px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-size: 1rem;
+            transition: background 0.3s;
         }
 
-        button:hover { background: #1a252f; }
+        button:hover {
+            background-color: #1a252f;
+        }
 
-        /* Chat Styles */
-        #chat-container {
+        .dispatch-info {
+            background: #eef2f3;
+            padding: 15px;
+            border-left: 5px solid var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        /* Dialogue Styles */
+        #chat-box {
             height: 300px;
             overflow-y: auto;
-            border: 1px solid var(--border);
-            background: #fafafa;
+            border: 1px solid #ddd;
             padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 4px;
+            background: #fafafa;
+            margin-bottom: 15px;
+            border-radius: 8px;
         }
 
-        .msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 15px; max-width: 80%; line-height: 1.4; }
-        .user-msg { background: var(--primary); color: white; margin-left: auto; }
-        .bot-msg { background: #eee; color: #333; }
+        .message {
+            margin-bottom: 12px;
+            max-width: 85%;
+        }
 
-        .loading { color: var(--secondary); font-style: italic; margin-bottom: 10px; }
+        .message.user {
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .bubble {
+            display: inline-block;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+        }
+
+        .message.user .bubble {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.bot .bubble {
+            background: #eee;
+            color: #333;
+            border-bottom-left-radius: 2px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .error-msg {
+            color: var(--secondary);
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h2 id="app-title">Paramedic Training Sim</h2>
-        <div id="loading-indicator" class="loading" style="display:none;">Communicating with Clinical Lead...</div>
+        <h1>EMS Sim</h1>
+        <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
     </header>
 
-    <!-- STEP 0: GENERATION -->
-    <div id="step-0" class="section active">
-        <h3>Start New Simulation</h3>
-        <p>Enter a chief complaint (e.g., "Difficulty breathing") or leave blank for a random case.</p>
-        <input type="text" id="user-input-complaint" placeholder="Complaint...">
-        <br><br>
-        <button onclick="initScenario()">Initialize Case</button>
+    <!-- API SETTINGS (Required for GitHub Pages) -->
+    <div id="api-settings">
+        <label>Google Gemini API Key:</label>
+        <input type="password" id="api-key-input" placeholder="Paste your API key here">
+        <p style="font-size: 0.8rem; margin: 10px 0;">Key is saved locally in your browser. Get one at <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</p>
+        <button onclick="saveApiKey()">Save Settings</button>
     </div>
 
-    <!-- PHASE 1: DISPATCH -->
-    <div id="step-1" class="section">
-        <div class="phase-header">1. Dispatch Phase (Initial Call & Planning)</div>
-        <table>
-            <tr><th>Location</th><td id="d-loc"></td></tr>
-            <tr><th>Age/Sex</th><td id="d-age-sex"></td></tr>
-            <tr><th>Presenting Complaint</th><td id="d-complaint"></td></tr>
-            <tr><th>Initial Safety Concerns</th><td><input type="text" id="p1-safety" placeholder="e.g., Traffic, Bystanders..."></td></tr>
-        </table>
+    <div id="status-bar" class="status-bar" style="display: none;">
+        <span id="display-incident">Incident: Cardiac</span>
+        <span id="display-location">Location: Residence</span>
+    </div>
 
-        <div class="mandatory-box">
-            <strong>What to Bring In (MANDATORY Single List)</strong>
-            <p><small>List the single, most critical set of equipment, drugs, and tools required immediately.</small></p>
-            <textarea id="p1-equipment" rows="4" placeholder="1. Lifepak 15&#10;2. Response Bag&#10;3. Suction..."></textarea>
+    <!-- 1. INTRO / GENERATION -->
+    <div id="section-intro" class="section active">
+        <h2>Generate New Scenario</h2>
+        <p>Enter a chief complaint or leave blank for a random medical emergency.</p>
+        <div class="input-group">
+            <input type="text" id="user-complaint" placeholder="e.g. Chest Pain, Difficulty Breathing...">
         </div>
-        <button onclick="showStep(2)">Arrive on Scene</button>
+        <button onclick="generateScenario()">Start Simulation</button>
+        <p id="loading-msg" style="display:none; color: var(--secondary); margin-top: 10px;">Generating clinical case...</p>
+        <p id="config-error" class="error-msg">Please set your API Key in the ⚙️ settings first!</p>
     </div>
 
-    <!-- PHASE 2: ASSESSMENT -->
-    <div id="step-2" class="section">
-        <div class="phase-header">2. Assessment Phase (On Scene & Diagnosis)</div>
+    <!-- 2. DISPATCH -->
+    <div id="section-dispatch" class="section">
+        <h2>Dispatch Information</h2>
+        <div class="dispatch-info">
+            <p><strong>Call Details:</strong> <span id="dispatch-details"></span></p>
+            <p><strong>Location Type:</strong> <span id="dispatch-loc"></span></p>
+        </div>
+
+        <div class="input-group">
+            <label>Working Diagnosis (Differential):</label>
+            <textarea id="working-diag" rows="3" placeholder="What do you think is happening based on dispatch?"></textarea>
+        </div>
+
+        <div class="input-group">
+            <label>Equipment to Bring In:</label>
+            <textarea id="equip-list" rows="2" placeholder="Lifebox, Monitor, Suction, etc."></textarea>
+        </div>
+
+        <button onclick="goToAssessment()">Arrive on Scene</button>
+    </div>
+
+    <!-- 3. ASSESSMENT (INTERACTIVE) -->
+    <div id="section-assessment" class="section">
+        <h2>Patient Assessment</h2>
+        <p>Interview the patient or ask about findings. They will respond in character.</p>
         
-        <div id="chat-container">
-            <div class="msg bot-msg">You have arrived. The patient is visible. You can now begin your assessment by asking questions.</div>
-        </div>
-        <div style="display:flex; gap: 10px; margin-bottom: 20px;">
-            <input type="text" id="chat-input" placeholder="Ask the patient something..." onkeydown="if(event.key==='Enter') sendChat()">
-            <button onclick="sendChat()">Ask</button>
+        <div id="chat-box">
+            <div class="message bot">
+                <div class="bubble">You have arrived on scene. The patient is visible. What would you like to ask or do?</div>
+            </div>
         </div>
 
-        <table>
-            <tr><th>Primary Survey (ABCDE)</th><td><textarea id="p2-abcde"></textarea></td></tr>
-            <tr><th>Secondary Survey (SAMPLE)</th><td><textarea id="p2-sample"></textarea></td></tr>
-            <tr><th>Vitals</th><td><textarea id="p2-vitals" placeholder="HR, BP, Sats, Temp, GCS, BGL"></textarea></td></tr>
-        </table>
-
-        <div class="mandatory-box">
-            <strong>Working Diagnosis (MANDATORY Single Box)</strong>
-            <textarea id="p2-diagnosis" rows="2" placeholder="e.g., Acute Pulmonary Edema secondary to AF."></textarea>
+        <div class="controls">
+            <input type="text" id="chat-input" placeholder="Ask a question..." onkeypress="handleKey(event)">
+            <button onclick="sendMessage()">Send</button>
         </div>
-        <button onclick="showStep(3)">Proceed to Action Phase</button>
+
+        <div style="margin-top: 20px;">
+            <button onclick="goToTreatment()">Proceed to Treatment Plan</button>
+        </div>
     </div>
 
-    <!-- PHASE 3: ACTION -->
-    <div id="step-3" class="section">
-        <div class="phase-header">3. Action Phase (Treatment & Transport)</div>
-        <table>
-            <tr><th>Treatment Plan</th><td><textarea id="p3-plan"></textarea></td></tr>
-            <tr><th>Drug Administration</th><td><textarea id="p3-drugs" placeholder="Drug, Dose, Route"></textarea></td></tr>
-            <tr><th>Transport Decision</th><td><textarea id="p3-transport" placeholder="Category, Destination"></textarea></td></tr>
-            <tr><th>Handover Summary</th><td><textarea id="p3-handover" rows="4"></textarea></td></tr>
-        </table>
-        <button onclick="getFeedback()">Complete Simulation & Get Feedback</button>
+    <!-- 4. TREATMENT & HANDOVER -->
+    <div id="section-treatment" class="section">
+        <h2>Management & Handover</h2>
+        <div class="input-group">
+            <label>Immediate Treatments/Interventions:</label>
+            <textarea id="treatments" rows="4" placeholder="Oxygen, IV, Drugs, Positioning..."></textarea>
+        </div>
+        <div class="input-group">
+            <label>ATMIST Handover (to Hospital):</label>
+            <textarea id="handover" rows="6" placeholder="A: Age, T: Time, M: Mechanism, I: Injuries/Illness, S: Signs, T: Treatment"></textarea>
+        </div>
+        <button onclick="finishSim()">Submit Case for Review</button>
     </div>
 
-    <!-- FEEDBACK -->
-    <div id="step-4" class="section">
-        <div class="phase-header">Clinical Performance Review</div>
-        <div id="feedback-text" style="white-space: pre-wrap; line-height: 1.6; padding: 15px; border: 1px solid #ddd;"></div>
-        <br>
-        <button onclick="location.reload()">New Case</button>
+    <!-- 5. FEEDBACK -->
+    <div id="section-feedback" class="section">
+        <h2>Clinical Feedback</h2>
+        <div id="feedback-content" style="white-space: pre-wrap; line-height: 1.6; background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            Analyzing your performance...
+        </div>
+        <button style="margin-top: 20px;" onclick="location.reload()">Start New Session</button>
     </div>
 </div>
 
 <script>
-    const apiKey = ""; // Runtime key
-    let scenario = null;
+    // Retrieve API key from local storage (critical for GitHub Pages)
+    let savedKey = localStorage.getItem('PARAMEDIC_SIM_API_KEY') || "";
+    document.getElementById('api-key-input').value = savedKey;
 
-    async function callGemini(prompt, system, json = false) {
-        document.getElementById('loading-indicator').style.display = 'block';
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-        const payload = {
-            contents: [{ parts: [{ text: prompt }] }],
-            systemInstruction: { parts: [{ text: system }] }
-        };
-        if (json) payload.generationConfig = { responseMimeType: "application/json" };
+    let currentScenario = null;
+    let chatHistory = [];
 
-        try {
-            const response = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
-            const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
-        } catch (e) {
-            console.error(e);
+    function toggleSettings() {
+        const panel = document.getElementById('api-settings');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function saveApiKey() {
+        const val = document.getElementById('api-key-input').value.trim();
+        localStorage.setItem('PARAMEDIC_SIM_API_KEY', val);
+        savedKey = val;
+        alert("Settings saved!");
+        toggleSettings();
+    }
+
+    async function callGemini(prompt, systemPrompt = "", isJson = false) {
+        if (!savedKey) {
+            document.getElementById('config-error').style.display = 'block';
+            toggleSettings();
             return null;
-        } finally {
-            document.getElementById('loading-indicator').style.display = 'none';
         }
-    }
 
-    async function initScenario() {
-        const complaint = document.getElementById('user-input-complaint').value;
-        const system = "Generate a paramedic clinical case. Return JSON: {dispatch_loc, age, sex, complaint, actual_diagnosis, vitals_obj, findings_abcde, history_sample, patient_personality}";
-        const prompt = `Create a case for: ${complaint || 'random medical emergency'}. 
-        vitals_obj should contain numbers for HR, BP, RR, SpO2, Temp, GCS, BGL. 
-        patient_personality describes how they speak.`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${savedKey}`;
         
-        const raw = await callGemini(prompt, system, true);
-        if (raw) {
-            scenario = JSON.parse(raw);
-            document.getElementById('d-loc').innerText = scenario.dispatch_loc;
-            document.getElementById('d-age-sex').innerText = `${scenario.age} / ${scenario.sex}`;
-            document.getElementById('d-complaint').innerText = scenario.complaint;
-            showStep(1);
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }]
+        };
+
+        if (systemPrompt) {
+            payload.systemInstruction = { parts: [{ text: systemPrompt }] };
         }
+
+        if (isJson) {
+            payload.generationConfig = { responseMimeType: "application/json" };
+        }
+
+        for (let i = 0; i < 5; i++) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+                return data.candidates?.[0]?.content?.parts?.[0]?.text;
+            } catch (e) {
+                if (i === 4) alert("API Error: " + e.message);
+                await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+            }
+        }
+        return null;
     }
 
-    async function sendChat() {
+    async function generateScenario() {
+        const complaint = document.getElementById('user-complaint').value;
+        document.getElementById('loading-msg').style.display = 'block';
+        document.getElementById('config-error').style.display = 'none';
+
+        const prompt = `Generate a detailed paramedic clinical scenario. Chief complaint: ${complaint || 'Random medical emergency'}. 
+        Return JSON with these exact keys: 
+        "dispatch_summary": "Short 1-sentence dispatch alert",
+        "location": "e.g. Public Park, Private Home",
+        "patient_details": {
+            "age": 45,
+            "gender": "male/female",
+            "history": "PMH details",
+            "medications": "current meds",
+            "allergies": "allergies"
+        },
+        "vitals": { "hr": 0, "bp": "0/0", "rr": 0, "spo2": 0, "temp": 0, "gcs": 15, "glucose": 0 },
+        "actual_diagnosis": "Hidden diagnosis",
+        "patient_personality": "How they should talk (scared, aggressive, quiet, etc.)"`;
+
+        const result = await callGemini(prompt, "You are a clinical educator. Provide a realistic paramedic scenario in JSON.", true);
+        
+        if (result) {
+            currentScenario = JSON.parse(result);
+            document.getElementById('dispatch-details').innerText = currentScenario.dispatch_summary;
+            document.getElementById('dispatch-loc').innerText = currentScenario.location;
+            
+            showSection('dispatch');
+            document.getElementById('status-bar').style.display = 'flex';
+            document.getElementById('display-incident').innerText = "Complaint: " + (complaint || "Medical");
+            document.getElementById('display-location').innerText = "Loc: " + currentScenario.location;
+        }
+        document.getElementById('loading-msg').style.display = 'none';
+    }
+
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('section-' + id).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToAssessment() {
+        showSection('assessment');
+    }
+
+    function handleKey(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+
+    async function sendMessage() {
         const input = document.getElementById('chat-input');
         const text = input.value.trim();
-        if (!text || !scenario) return;
+        if (!text) return;
 
-        addChat(text, 'user-msg');
+        addMessage(text, 'user');
         input.value = '';
 
-        const system = `You are a patient in a paramedic simulation. 
-        Diagnosis: ${scenario.actual_diagnosis}. 
-        Personality: ${scenario.patient_personality}. 
-        Details: ${JSON.stringify(scenario.history_sample)}. 
-        Findings: ${JSON.stringify(scenario.findings_abcde)}.
-        If the student asks for vitals, give them the values: ${JSON.stringify(scenario.vitals_obj)}.
-        Stay in character. Short, realistic responses.`;
+        const systemPrompt = `You are a patient in a paramedic simulation. 
+        Case: ${currentScenario.actual_diagnosis}. 
+        Details: ${JSON.stringify(currentScenario.patient_details)}. 
+        Personality: ${currentScenario.patient_personality}.
+        Current Vitals if asked: ${JSON.stringify(currentScenario.vitals)}.
+        Respond as the patient in first person. Be realistic. Do not give away the diagnosis unless they ask questions that would reveal it. 
+        If they ask for vitals or check them, describe how you feel or provide the numbers if they are checking a monitor.`;
 
-        const reply = await callGemini(text, system);
-        if (reply) addChat(reply, 'bot-msg');
+        const response = await callGemini(text, systemPrompt);
+        if (response) {
+            addMessage(response, 'bot');
+            chatHistory.push({ q: text, a: response });
+        }
     }
 
-    function addChat(text, className) {
-        const container = document.getElementById('chat-container');
+    function addMessage(text, type) {
+        const box = document.getElementById('chat-box');
         const div = document.createElement('div');
-        div.className = `msg ${className}`;
-        div.innerText = text;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
+        div.className = `message ${type}`;
+        div.innerHTML = `<div class="bubble">${text}</div>`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
     }
 
-    function showStep(n) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(`step-${n}`).classList.add('active');
-        window.scrollTo(0,0);
+    function goToTreatment() {
+        showSection('treatment');
     }
 
-    async function getFeedback() {
-        showStep(4);
-        const report = {
-            safety: document.getElementById('p1-safety').value,
-            equipment: document.getElementById('p1-equipment').value,
-            diag: document.getElementById('p2-diagnosis').value,
-            treatment: document.getElementById('p3-plan').value,
-            handover: document.getElementById('p3-handover').value
+    async function finishSim() {
+        showSection('feedback');
+        const feedbackDiv = document.getElementById('feedback-content');
+        
+        const studentData = {
+            workingDiag: document.getElementById('working-diag').value,
+            equipment: document.getElementById('equip-list').value,
+            history: chatHistory,
+            treatment: document.getElementById('treatments').value,
+            handover: document.getElementById('handover').value
         };
 
-        const prompt = `Compare the student's actions to the gold standard for this case: ${scenario.actual_diagnosis}.
-        Student Report: ${JSON.stringify(report)}.
-        Provide a clinical critique based on the three phases: Dispatch, Assessment, and Action.`;
+        const prompt = `Review this paramedic student's performance. 
+        Actual Case: ${currentScenario.actual_diagnosis}.
+        Student's Working Diagnosis (at Dispatch): ${studentData.workingDiag}.
+        Student's Equipment Choice: ${studentData.equipment}.
+        Assessment Interaction: ${JSON.stringify(studentData.history)}.
+        Treatment Plan: ${studentData.treatment}.
+        Handover (ATMIST): ${studentData.handover}.
         
-        const feedback = await callGemini(prompt, "You are a senior Paramedic Educator.");
-        document.getElementById('feedback-text').innerText = feedback || "Feedback unavailable.";
+        Provide:
+        1. Accuracy of working diagnosis and equipment choice.
+        2. Quality of patient assessment.
+        3. Clinical appropriateness of treatment.
+        4. Areas for improvement.`;
+
+        const feedback = await callGemini(prompt, "You are an expert Paramedic Mentor. Provide constructive, detailed feedback.");
+        feedbackDiv.innerText = feedback || "Error generating feedback. Please try again.";
     }
 </script>
 
