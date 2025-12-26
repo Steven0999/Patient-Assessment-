@@ -3,395 +3,424 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UK Paramedic Sim (SECAmb Scope)</title>
+    <title>SECAmb MDT - Advanced Clinical & Incident Mode</title>
     <style>
         :root {
-            --primary: #005eb8; /* NHS Blue */
-            --secondary: #ae2573; /* NHS Magenta */
-            --accent: #007f3b; /* NHS Green */
-            --warning: #ffb81c; /* NHS Yellow */
-            --bg: #f0f4f5;
-            --text: #212b32;
-            --white: #ffffff;
-            --border: #d8dde0;
-            --p1: #d63031;
-            --p2: #fdcb6e;
-            --p3: #00b894;
-            --dead: #2d3436;
+            --primary: #005eb8;
+            --accent: #007f3b;
+            --warning: #ffb81c;
+            --danger: #d63031;
+            --bg: #0f0f0f;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --border: #333;
+            --trauma-purple: #6c5ce7;
         }
 
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; justify-content: center; }
-
-        .container { width: 100%; max-width: 800px; background: var(--white); padding: 20px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; border-top: 8px solid var(--primary); min-height: 90vh; }
-
-        header { border-bottom: 2px solid var(--border); margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-
-        .settings-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--primary); }
-        #api-settings { display: none; background: #f3f2f1; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid var(--border); }
-
-        h1 { color: var(--primary); margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; }
-        h2 { color: var(--primary); font-size: 1.2rem; margin-top: 20px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-
-        .section { display: none; animation: fadeIn 0.3s ease-in; }
-        .section.active { display: block; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; overflow-x: hidden; }
+        .container { width: 100%; max-width: 650px; min-height: 100vh; margin: auto; display: flex; flex-direction: column; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+        
+        header { background: #000; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--primary); }
+        .unit-id { font-weight: 800; color: var(--warning); font-size: 1.2rem; }
+        
+        .section { display: none; padding: 15px; flex-grow: 1; animation: fadeIn 0.3s ease; }
+        .section.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .role-selector { display: flex; gap: 10px; margin-bottom: 20px; }
-        .role-btn { flex: 1; padding: 12px; border: 2px solid var(--border); background: white; color: var(--primary); cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.9rem; }
-        .role-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        /* Incident Alert Styling */
+        .major-incident-alert { background: var(--danger); color: white; padding: 10px; font-weight: bold; text-align: center; margin-bottom: 10px; animation: blink 1s infinite; border-radius: 4px; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
-        textarea, input, select { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 4px; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
-
-        button { background-color: var(--primary); color: white; padding: 14px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background 0.2s; width: 100%; }
-        button:hover { background-color: #004a99; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-
-        .dispatch-info { background: #fff9c4; padding: 15px; border-left: 5px solid #fbc02d; margin-bottom: 20px; color: #444; font-size: 0.95rem; }
-
-        .summary-panel { background: #f0f4f5; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid var(--border); font-size: 0.9rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .summary-panel strong { color: var(--primary); text-transform: uppercase; font-size: 0.7rem; margin-right: 5px; }
-
-        .patient-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
-        .patient-card { border: 1px solid var(--border); padding: 10px; border-radius: 4px; background: #fff; }
-        .tst-btn-group { display: flex; gap: 5px; margin-top: 8px; }
-        .tst-btn { flex: 1; padding: 8px; font-size: 0.8rem; cursor: pointer; border: 1px solid #ccc; border-radius: 3px; font-weight: bold; }
-        .tst-p1 { background: var(--p1); color: white; border: none; }
-        .tst-p2 { background: var(--p2); color: #000; border: none; }
-        .tst-p3 { background: var(--p3); color: white; border: none; }
-
-        #chat-box { height: 250px; overflow-y: auto; border: 2px solid var(--border); padding: 10px; background: #fff; margin-bottom: 10px; border-radius: 4px; }
-        .message { margin-bottom: 10px; display: flex; flex-direction: column; }
-        .message.user { align-items: flex-end; }
-        .bubble { max-width: 85%; padding: 10px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; }
-        .message.user .bubble { background: var(--primary); color: white; border-bottom-right-radius: 0; }
-        .message.bot .bubble { background: #e8edee; color: #212b32; border-bottom-left-radius: 0; }
-
-        .status-bar { display: flex; justify-content: space-between; background: var(--text); color: white; padding: 8px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 0.75rem; font-weight: bold; }
+        /* CAD Grid */
+        .cad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .cad-item { background: var(--card-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--border); }
+        .label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
+        .value { font-size: 1.05rem; font-weight: 700; }
         
-        .audit-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
-        .feedback-item { padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #ccc; font-size: 0.9rem; }
-        .feedback-item.diagnosis { border-color: var(--primary); background: #f0f7ff; }
-        .feedback-item.strength { border-color: var(--accent); background: #f2faf5; }
-        .feedback-item.improvement { border-color: var(--warning); background: #fffdf5; }
-        .feedback-item.critical { border-color: var(--secondary); background: #fff5f8; }
+        /* Badges */
+        .badge { padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; display: inline-block; }
+        .cat-1 { background: var(--danger); }
+        .cat-trauma { background: var(--trauma-purple); }
+        
+        /* METHANE Form */
+        .methane-input { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: center; margin-bottom: 8px; }
+        .methane-letter { background: #333; color: var(--warning); font-weight: bold; text-align: center; border-radius: 4px; height: 30px; line-height: 30px; }
 
-        .loader { text-align: center; display: none; margin: 10px 0; color: var(--primary); font-weight: bold; }
+        /* Interaction */
+        #chat-box { flex-grow: 1; background: #050505; border: 1px solid var(--border); margin: 10px 0; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; height: 300px; }
+        .msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 0.95rem; line-height: 1.4; }
+        .para-msg { align-self: flex-end; background: var(--primary); border-bottom-right-radius: 2px; }
+        .pt-msg { align-self: flex-start; background: var(--card-bg); border-bottom-left-radius: 2px; border: 1px solid var(--border); }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        button { padding: 14px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        .btn-blue { background: var(--primary); color: white; }
+        .btn-green { background: var(--accent); color: white; }
+        .btn-purple { background: var(--trauma-purple); color: white; }
+        .btn-red { background: var(--danger); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: white; }
+        
+        input, textarea { background: #1a1a1a; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; }
+        
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+
+        /* Triage Specific */
+        .triage-card { background: var(--card-bg); border: 1px solid var(--border); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .triage-p1 { border-left: 8px solid #ff4757; }
+        .triage-p2 { border-left: 8px solid #ffa502; }
+        .triage-p3 { border-left: 8px solid #2ed573; }
+        .triage-dead { border-left: 8px solid #2f3542; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>UK Paramedic Sim <span style="font-size:0.6rem; background:var(--accent); color:white; padding:2px 6px; border-radius:10px; vertical-align:middle;">SECAmb ROTATION</span></h1>
-        <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+        <div class="unit-id">SEC-K232</div>
+        <div id="mdt-clock" style="font-family: monospace; font-size: 1.1rem;">00:00:00</div>
     </header>
 
-    <div id="api-settings">
-        <p style="font-size: 0.8rem; margin-bottom: 10px; color: #666;">Rotation Settings</p>
-        <button onclick="resetRotation()" style="background:#768692; padding: 8px;">Reset Rotation (Job 1)</button>
-    </div>
-
-    <div id="status-bar" class="status-bar" style="display: none;">
-        <span id="display-role">Role: Paramedic</span>
-        <span id="display-job-count">Job: 1</span>
-        <span id="display-type">Type: Routine</span>
-    </div>
-
-    <!-- START SECTION -->
-    <div id="section-intro" class="section active">
-        <h2>Crew Selection</h2>
-        <div class="role-selector">
-            <button class="role-btn selected" id="role-paramedic" onclick="selectRole('Paramedic')">Paramedic Lead</button>
-            <button class="role-btn" id="role-aap" onclick="selectRole('AAP/Technician')">AAP/Technician</button>
+    <!-- START SCREEN -->
+    <div id="sec-start" class="section active">
+        <div style="text-align:center; padding-top: 40px;">
+            <img src="https://via.placeholder.com/100/005eb8/ffffff?text=MDT" style="border-radius: 50%; margin-bottom: 20px;">
+            <h2>MDT Dispatch System</h2>
+            <div style="margin: 20px 0;">
+                <label class="label">Select Unit Role</label>
+                <select id="unit-role" style="width:100%; padding: 10px; background: #222; color: white; border: 1px solid #444;">
+                    <option value="standard">Standard Ambulance (DCAs)</option>
+                    <option value="trauma">Critical Care / Trauma Unit</option>
+                    <option value="incident">HART / Incident Response</option>
+                </select>
+            </div>
+            <button class="btn-green" style="width:100%" onclick="generateJob()">GO AVAILABLE</button>
+            <p id="status-msg" style="color: var(--warning); margin-top: 15px; font-size: 0.8rem;"></p>
         </div>
+    </div>
+
+    <!-- DISPATCH SCREEN -->
+    <div id="sec-dispatch" class="section">
+        <div id="mi-alert" class="major-incident-alert" style="display:none">! MAJOR INCIDENT STANDBY !</div>
         
-        <div class="input-group" style="background: #f9f9f9; padding: 15px; border-radius: 4px; border: 1px solid #eee;">
-            <label>Request Specific Case (e.g. Stroke, Cardiac, RTC):</label>
-            <div style="display: flex; gap: 5px;">
-                <input type="text" id="scenario-search" placeholder="Enter keyword...">
-                <button onclick="generateScenario(true)" style="background: var(--accent); width: auto; white-space: nowrap; padding: 0 15px;">Go</button>
+        <div class="cad-grid">
+            <div class="cad-item"><span class="label">URN</span><div class="value" id="cad-urn">---</div></div>
+            <div class="cad-item"><span class="label">Code</span><div class="value" id="cad-code">---</div></div>
+            <div class="cad-item" style="grid-column: span 2;">
+                <span class="label">Location</span>
+                <div class="value" id="cad-loc">---</div>
             </div>
+            <div class="cad-item"><span class="label">Priority</span><div id="cad-cat" class="badge">---</div></div>
+            <div class="cad-item"><span class="label">Job Type</span><div class="value" id="cad-type">---</div></div>
         </div>
 
-        <button id="dispatch-btn" onclick="generateScenario(false)" style="font-size: 1.1rem; height: 60px;">AVAILABLE FOR DISPATCH</button>
-        <div id="loading-msg" class="loader">CAD SYSTEM SYNCING...</div>
+        <div class="cad-item" style="margin-bottom: 10px; border-left: 4px solid var(--primary);">
+            <span class="label">Clinical/Site Notes</span>
+            <div id="cad-notes" style="font-size: 0.85rem; line-height: 1.4; max-height: 150px; overflow-y: auto;">---</div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-blue" onclick="setStatus('MOBILE')">MOBILE</button>
+            <button class="btn-green" onclick="setStatus('AT SCENE')">AT SCENE</button>
+        </div>
     </div>
 
-    <!-- DISPATCH SECTION -->
-    <div id="section-dispatch" class="section">
-        <h2>MDT Dispatch</h2>
-        <div class="dispatch-info">
-            <p><strong>CAD:</strong> <span id="dispatch-details"></span></p>
-            <p><strong>LOC:</strong> <span id="dispatch-loc"></span></p>
-            <p><strong>CAT:</strong> <span id="dispatch-cat"></span></p>
-        </div>
-        <div class="input-group">
-            <label>En-route Preparation:</label>
-            <textarea id="equip-list" rows="2" placeholder="List equipment or drugs to prep..."></textarea>
-        </div>
-        <button onclick="showSection('assessment')">MOBILE AT SCENE</button>
+    <!-- METHANE MODAL -->
+    <div id="methane-modal" class="modal">
+        <h2 style="color:var(--warning)">METHANE Report</h2>
+        <div class="methane-input"><div class="methane-letter">M</div><input id="m-m" placeholder="Major Incident? (Confirmed/Standby)"></div>
+        <div class="methane-input"><div class="methane-letter">E</div><input id="m-e" placeholder="Exact Location"></div>
+        <div class="methane-input"><div class="methane-letter">T</div><input id="m-t" placeholder="Type of Incident (RTC, Fire, CBRN)"></div>
+        <div class="methane-input"><div class="methane-letter">H</div><input id="m-h" placeholder="Hazards (Present/Potential)"></div>
+        <div class="methane-input"><div class="methane-letter">A</div><input id="m-a" placeholder="Access/Egress Routes"></div>
+        <div class="methane-input"><div class="methane-letter">N</div><input id="m-n" placeholder="Number of Casualties"></div>
+        <div class="methane-input"><div class="methane-letter">E</div><input id="m-e2" placeholder="Emergency Services Required"></div>
+        <button class="btn-green" style="width:100%; margin-top:10px" onclick="submitMethane()">TRANSMIT TO DISPATCH</button>
+        <button class="btn-outline" style="width:100%; margin-top:10px" onclick="document.getElementById('methane-modal').style.display='none'">CANCEL</button>
     </div>
 
-    <!-- ASSESSMENT SECTION -->
-    <div id="section-assessment" class="section">
-        <div class="summary-panel">
-            <strong>CAD MESSAGE:</strong> <span class="cad-summary"></span>
+    <!-- TEN SECOND TRIAGE MODAL -->
+    <div id="triage-modal" class="modal">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color:var(--warning); margin:0;">Ten Second Triage</h2>
+            <button class="btn-purple" style="padding: 5px 10px; font-size: 0.7rem;" onclick="toggleMittCard()">SEE MITT CARD</button>
         </div>
 
-        <div id="normal-assessment">
-            <h2>On-Scene Assessment</h2>
-            <div id="chat-box"></div>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="chat-input" placeholder="Ask patient / perform exam..." onkeypress="if(event.key==='Enter') sendMessage()">
-                <button onclick="sendMessage()" style="width: 80px;">Send</button>
+        <div id="mitt-card-display" style="display:none; background:#222; padding:15px; border: 1px solid var(--warning); border-radius:8px; margin-bottom:15px; font-size: 0.8rem;">
+            <strong style="color:var(--warning)">MAJOR INCIDENT TRIAGE TOOL (MITT)</strong><br><br>
+            1. <strong>Walking?</strong> Yes → P3 (Green)<br>
+            2. <strong>Breathing?</strong> No → Open Airway → Still No? → DEAD (Black)<br>
+            3. <strong>Bleeding?</strong> Catastrophic Bleed? → Pressure/Tourniquet → P1 (Red)<br>
+            4. <strong>Physiology:</strong> Respiratory Distress / Unconscious → P1 (Red)<br>
+            5. <strong>Everything else:</strong> P2 (Yellow)
+        </div>
+
+        <div id="triage-step-container">
+            <div class="triage-card">
+                <p id="triage-pt-desc">Loading next casualty...</p>
+                <div class="btn-group">
+                    <button class="btn-red" onclick="assignTriage('P1')">P1 (IMMEDIATE)</button>
+                    <button class="btn-blue" style="background:#ffa502" onclick="assignTriage('P2')">P2 (URGENT)</button>
+                    <button class="btn-green" onclick="assignTriage('P3')">P3 (WALKING)</button>
+                    <button class="btn-outline" style="background:#222" onclick="assignTriage('DEAD')">DEAD</button>
+                </div>
             </div>
-            
-            <div class="eoc-box">
-                <label>Call Dispatch (Backup/CCP):</label>
-                <div style="display: flex; gap: 5px;">
-                    <select id="backup-type">
-                        <option value="General Backup">General Backup</option>
-                        <option value="CCP (Critical Care)">CCP (Critical Care)</option>
-                        <option value="HART">HART</option>
-                        <option value="Police/Fire">Police/Fire</option>
-                    </select>
-                    <button onclick="requestBackup()" style="width: auto; background: var(--secondary);">Call</button>
+
+            <div id="triage-intervention" style="display:none;" class="triage-card">
+                <p>Perform life-saving intervention (Airway/Bleed)?</p>
+                <div class="btn-group">
+                    <button class="btn-green" onclick="toggleIntervention(true)">YES</button>
+                    <button class="btn-outline" onclick="toggleIntervention(false)">NO (MOVE ON)</button>
+                </div>
+                <div id="intervention-details" style="display:none; margin-top:15px;">
+                    <textarea id="intervention-text" placeholder="Explain what you would do (e.g., Tourniquet to right leg, OPA inserted)..."></textarea>
+                    <button class="btn-blue" style="width:100%; margin-top:10px;" onclick="nextTriage()">CONTINUE TO NEXT PT</button>
                 </div>
             </div>
         </div>
 
-        <div id="mi-assessment" style="display:none;">
-            <h2>Major Incident Triage</h2>
-            <div class="patient-grid" id="mi-patient-grid"></div>
-            <div class="input-group" style="margin-top: 15px;">
-                <label>METHANE Report:</label>
-                <textarea id="methane-report" rows="3" placeholder="Major incident, Exact loc, Type..."></textarea>
-            </div>
+        <div id="triage-summary" style="display:none; text-align:center;">
+            <h3>Triage Complete</h3>
+            <p id="triage-count"></p>
+            <button class="btn-green" style="width:100%" onclick="closeTriage()">BACK TO SCENE</button>
         </div>
-
-        <button onclick="goToManagement()" style="margin-top: 20px;">PROCEED TO MANAGEMENT</button>
     </div>
 
-    <!-- TREATMENT SECTION -->
-    <div id="section-treatment" class="section">
-        <div class="summary-panel">
-            <strong>CAD MESSAGE:</strong> <span class="cad-summary"></span>
+    <!-- INTERACTION / TRAUMA SCREEN -->
+    <div id="sec-interaction" class="section">
+        <div id="trauma-header" style="display:none; background: var(--trauma-purple); padding: 8px; border-radius: 4px; margin-bottom: 10px; font-weight: bold; text-align: center;">
+            MAJOR TRAUMA PROTOCOL ACTIVE
         </div>
-        <h2>Clinical Management</h2>
-        <div class="input-group">
-            <label>Interventions & Medications:</label>
-            <textarea id="treatments" rows="4" placeholder="Drugs, doses, immobilization, IV access..."></textarea>
+        
+        <div id="chat-box"></div>
+        
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <input type="text" id="user-input" placeholder="Assess, treat or speak..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button class="btn-blue" onclick="sendChat()">SEND</button>
         </div>
-        <div class="input-group">
-            <label id="handover-label">ATMIST Handover:</label>
-            <textarea id="handover" rows="4" placeholder="Age, Time, Mechanism, Injury, Signs, Treatment..."></textarea>
+
+        <div class="btn-group" style="grid-template-columns: 1fr 1fr 1fr;">
+            <button class="btn-purple" id="btn-methane" style="display:none" onclick="document.getElementById('methane-modal').style.display='block'">METHANE</button>
+            <button class="btn-red" id="btn-triage" style="display:none" onclick="startTriage()">TRIAGE</button>
+            <button class="btn-purple" id="btn-trauma-tool" onclick="showTraumaTools()">TRAUMA TOOLS</button>
         </div>
-        <button onclick="finishSim()" style="background: var(--accent);">COMPLETE & AUDIT</button>
+        <button class="btn-green" style="width:100%; margin-top:10px" onclick="showSection('treatment')">HANDOVER</button>
     </div>
 
-    <!-- AUDIT SECTION -->
-    <div id="section-feedback" class="section">
-        <div class="audit-card">
-            <h2>Clinical Audit Report</h2>
-            <div id="feedback-content"></div>
-        </div>
-        <button onclick="location.reload()" style="margin-top: 15px; background: #768692;">NEXT JOB</button>
+    <!-- TREATMENT / HANDOVER -->
+    <div id="sec-treatment" class="section">
+        <h3>Clinical Handover (ATMIST)</h3>
+        <textarea id="atmist-pcr" style="height: 250px;" placeholder="A: Age/Gender
+T: Time of Incident
+M: Mechanism of Injury
+I: Injuries Found
+S: Signs (Vitals)
+T: Treatment Given"></textarea>
+        <button class="btn-green" style="margin-top:15px" onclick="finishJob()">FINALISE JOB & CLEAR</button>
+    </div>
+
+    <!-- FEEDBACK -->
+    <div id="sec-feedback" class="section">
+        <h2 id="feedback-title">Clinical Review</h2>
+        <div id="audit-text" style="background:#1a1a1a; padding:15px; border-radius:8px; font-size: 0.9rem; line-height: 1.5;"></div>
+        <button class="btn-blue" style="margin-top:20px" onclick="location.reload()">RETURN TO BASE</button>
     </div>
 </div>
 
 <script>
-    const apiKey = ""; // Environment provided
-    let selectedRole = "Paramedic";
-    let jobCount = parseInt(localStorage.getItem('PARAMEDIC_JOB_COUNT')) || 1;
-    let currentScenario = null;
-    let miTriage = {};
+    const apiKey = "";
+    let currentJob = null;
+    let triagePatients = [];
+    let currentTriageIndex = 0;
+    let triageLogs = [];
 
-    function selectRole(r) {
-        selectedRole = r;
-        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
-        document.getElementById(r === 'Paramedic' ? 'role-paramedic' : 'role-aap').classList.add('selected');
-        document.getElementById('display-role').innerText = "Role: " + r;
+    setInterval(() => {
+        document.getElementById('mdt-clock').innerText = new Date().toLocaleTimeString('en-GB');
+    }, 1000);
+
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('sec-' + id).classList.add('active');
     }
 
-    function toggleSettings() {
-        const s = document.getElementById('api-settings');
-        s.style.display = s.style.display === 'block' ? 'none' : 'block';
+    function setStatus(s) {
+        if(s === 'AT SCENE') showSection('interaction');
     }
 
-    function resetRotation() {
-        localStorage.setItem('PARAMEDIC_JOB_COUNT', 1);
-        location.reload();
-    }
-
-    async function apiRequest(prompt, system, isJson = false) {
+    async function callGemini(prompt, system, isJson = false) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
             systemInstruction: { parts: [{ text: system }] }
         };
         if (isJson) payload.generationConfig = { responseMimeType: "application/json" };
+        const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
+    }
 
-        const retry = async (n) => {
-            try {
-                const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
-                if (!res.ok) throw new Error();
-                return await res.json();
-            } catch (e) {
-                if (n < 3) {
-                    await new Promise(r => setTimeout(r, 1000 * n));
-                    return retry(n + 1);
-                }
-                throw e;
-            }
-        };
+    async function generateJob() {
+        const role = document.getElementById('unit-role').value;
+        const statusMsg = document.getElementById('status-msg');
+        statusMsg.innerText = "POLLING DISPATCH SERVER...";
+        
+        const system = `You are a SECAmb Dispatcher. 
+        If role is 'incident', generate a MAJOR INCIDENT (e.g. multi-car pileup, building collapse). 
+        If role is 'trauma', generate a MAJOR TRAUMA (e.g. fall from height, knife wound). 
+        Otherwise, random emergency. 
+        JSON format: {
+            "urn": "SEC-20231027-XXXX",
+            "code": "AMPDS Code",
+            "isMajorIncident": bool,
+            "isMajorTrauma": bool,
+            "cat": 1 or 2,
+            "loc": "Address",
+            "type": "Incident Type Name",
+            "notes": "Dispatch notes",
+            "hidden_data": { "injury_detail": "string", "vitals": "string", "mechanisms": "string", "triage_list": [{"desc": "string", "correct": "P1|P2|P3|DEAD"}] }
+        }`;
 
         try {
-            const result = await retry(1);
-            return result.candidates?.[0]?.content?.parts?.[0]?.text;
-        } catch (e) {
-            console.error(e);
-            return null;
-        }
-    }
-
-    async function generateScenario(isSpecific) {
-        const loader = document.getElementById('loading-msg');
-        const btn = document.getElementById('dispatch-btn');
-        const search = document.getElementById('scenario-search').value.trim();
-        
-        loader.style.display = 'block';
-        btn.disabled = true;
-
-        const jobType = isSpecific ? `about ${search}` : (jobCount % 5 === 0 ? "High Acuity (Cat 1/Trauma)" : "Routine");
-        const sys = `You are a SECAmb Dispatch System. Return JSON ONLY:
-        {
-            "dispatch": "Short CAD message",
-            "loc": "Town in South East England",
-            "cat": "1, 2, 3, or 4",
-            "type": "Routine/Trauma/MajorIncident",
-            "diag": "Actual underlying condition",
-            "vitals": {"hr":0, "bp":"0/0", "rr":0, "spo2":0, "gcs":15},
-            "mi_patients": []
-        }
-        For MajorIncident, provide 5 objects in mi_patients: {"desc": "Patient description"}`;
-
-        const res = await apiRequest(`Generate a ${jobType} case.`, sys, true);
-        
-        if (res) {
-            currentScenario = JSON.parse(res);
-            document.getElementById('dispatch-details').innerText = currentScenario.dispatch;
-            document.getElementById('dispatch-loc').innerText = currentScenario.loc;
-            document.getElementById('dispatch-cat').innerText = "Category " + currentScenario.cat;
+            const res = await callGemini(`Generate ${role} job.`, system, true);
+            currentJob = JSON.parse(res);
             
-            document.querySelectorAll('.cad-summary').forEach(el => el.innerText = currentScenario.dispatch);
+            document.getElementById('cad-urn').innerText = currentJob.urn;
+            document.getElementById('cad-code').innerText = currentJob.code;
+            document.getElementById('cad-loc').innerText = currentJob.loc;
+            document.getElementById('cad-type').innerText = currentJob.type;
+            document.getElementById('cad-notes').innerText = currentJob.notes;
             
-            document.getElementById('status-bar').style.display = 'flex';
-            document.getElementById('display-job-count').innerText = "Job: " + jobCount;
-            document.getElementById('display-type').innerText = "Type: " + currentScenario.type;
-            
+            const cat = document.getElementById('cad-cat');
+            cat.innerText = "CAT " + currentJob.cat;
+            cat.className = "badge cat-" + (currentJob.isMajorTrauma ? 'trauma' : currentJob.cat);
+            if(currentJob.isMajorTrauma) cat.innerText = "MAJOR TRAUMA";
+
+            document.getElementById('mi-alert').style.display = currentJob.isMajorIncident ? 'block' : 'none';
+            document.getElementById('btn-methane').style.display = currentJob.isMajorIncident ? 'block' : 'none';
+            document.getElementById('btn-triage').style.display = currentJob.isMajorIncident ? 'block' : 'none';
+            document.getElementById('trauma-header').style.display = currentJob.isMajorTrauma ? 'block' : 'none';
+
             showSection('dispatch');
-            jobCount++;
-            localStorage.setItem('PARAMEDIC_JOB_COUNT', jobCount);
+        } catch (e) {
+            statusMsg.innerText = "CONNECTION ERROR. RETRYING...";
+            setTimeout(generateJob, 2000);
+        }
+    }
+
+    async function sendChat() {
+        const input = document.getElementById('user-input');
+        const box = document.getElementById('chat-box');
+        if (!input.value.trim()) return;
+
+        const val = input.value;
+        box.innerHTML += `<div class="msg para-msg">${val}</div>`;
+        input.value = "";
+        box.scrollTop = box.scrollHeight;
+
+        const system = `You are a patient/witness at a ${currentJob.isMajorIncident ? 'Major Incident' : 'Scene'}. 
+        Medical state: ${currentJob.hidden_data.injury_detail}. 
+        Vitals: ${currentJob.hidden_data.vitals}. 
+        Respond as the character. If the paramedic performs a clinical action, describe the physiological result.`;
+
+        const resp = await callGemini(val, system);
+        box.innerHTML += `<div class="msg pt-msg">${resp}</div>`;
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function submitMethane() {
+        document.getElementById('methane-modal').style.display = 'none';
+        const box = document.getElementById('chat-box');
+        box.innerHTML += `<div class="msg para-msg" style="background:#d35400">METHANE REPORT TRANSMITTED</div>`;
+    }
+
+    function startTriage() {
+        triagePatients = currentJob.hidden_data.triage_list || [
+            {desc: "Young adult female, walking, holding arm, seems confused.", correct: "P3"},
+            {desc: "Elderly male, trapped in car, breathing shallow, unconscious.", correct: "P1"},
+            {desc: "Child, lying on ground, not breathing after airway opening.", correct: "DEAD"}
+        ];
+        currentTriageIndex = 0;
+        triageLogs = [];
+        document.getElementById('triage-modal').style.display = 'block';
+        document.getElementById('triage-step-container').style.display = 'block';
+        document.getElementById('triage-summary').style.display = 'none';
+        updateTriageDisplay();
+    }
+
+    function updateTriageDisplay() {
+        const pt = triagePatients[currentTriageIndex];
+        document.getElementById('triage-pt-desc').innerText = `CASUALTY ${currentTriageIndex + 1}: ${pt.desc}`;
+        document.getElementById('triage-intervention').style.display = 'none';
+        document.getElementById('intervention-details').style.display = 'none';
+        document.getElementById('intervention-text').value = "";
+    }
+
+    function assignTriage(cat) {
+        triageLogs.push({ pt: currentTriageIndex, choice: cat });
+        document.getElementById('triage-intervention').style.display = 'block';
+    }
+
+    function toggleIntervention(needed) {
+        if (needed) {
+            document.getElementById('intervention-details').style.display = 'block';
         } else {
-            alert("CAD System Error. Please try again.");
-        }
-        
-        loader.style.display = 'none';
-        btn.disabled = false;
-    }
-
-    function showSection(id) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById('section-' + id).classList.add('active');
-        window.scrollTo(0,0);
-        
-        if (id === 'assessment') {
-            if (currentScenario.type === "MajorIncident") {
-                document.getElementById('normal-assessment').style.display = 'none';
-                document.getElementById('mi-assessment').style.display = 'block';
-                renderMI();
-            } else {
-                document.getElementById('normal-assessment').style.display = 'block';
-                document.getElementById('mi-assessment').style.display = 'none';
-            }
+            nextTriage();
         }
     }
 
-    function renderMI() {
-        const grid = document.getElementById('mi-patient-grid');
-        grid.innerHTML = '';
-        currentScenario.mi_patients.forEach((p, i) => {
-            const div = document.createElement('div');
-            div.className = 'patient-card';
-            div.innerHTML = `
-                <p><strong>Pt #${i+1}:</strong> ${p.desc}</p>
-                <div class="tst-btn-group">
-                    <button class="tst-btn tst-p1" onclick="this.parentElement.previousElementSibling.style.color='red'">P1</button>
-                    <button class="tst-btn tst-p2" onclick="this.parentElement.previousElementSibling.style.color='orange'">P2</button>
-                    <button class="tst-btn tst-p3" onclick="this.parentElement.previousElementSibling.style.color='green'">P3</button>
-                </div>
-            `;
-            grid.appendChild(div);
-        });
+    function nextTriage() {
+        const text = document.getElementById('intervention-text').value;
+        triageLogs[currentTriageIndex].intervention = text || "None";
+        
+        currentTriageIndex++;
+        if (currentTriageIndex < triagePatients.length) {
+            updateTriageDisplay();
+        } else {
+            document.getElementById('triage-step-container').style.display = 'none';
+            document.getElementById('triage-summary').style.display = 'block';
+            document.getElementById('triage-count').innerText = `Processed ${triagePatients.length} casualties. Data ready for METHANE update.`;
+        }
     }
 
-    async function sendMessage() {
-        const input = document.getElementById('chat-input');
+    function closeTriage() {
+        document.getElementById('triage-modal').style.display = 'none';
         const box = document.getElementById('chat-box');
-        const msg = input.value.trim();
-        if (!msg) return;
-
-        box.innerHTML += `<div class="message user"><div class="bubble">${msg}</div></div>`;
-        input.value = '';
-        box.scrollTop = box.scrollHeight;
-
-        const sys = `You are a patient in a SECAmb paramedic sim. Diagnosis: ${currentScenario.diag}. Vitals: ${JSON.stringify(currentScenario.vitals)}. Respond realistically and briefly to the paramedic's action/question.`;
-        const res = await apiRequest(msg, sys);
-        
-        if (res) {
-            box.innerHTML += `<div class="message bot"><div class="bubble">${res}</div></div>`;
-            box.scrollTop = box.scrollHeight;
-        }
+        box.innerHTML += `<div class="msg para-msg" style="background:var(--danger)">TEN SECOND TRIAGE COMPLETED: ${triagePatients.length} PTS SCREENED</div>`;
     }
 
-    async function requestBackup() {
-        const type = document.getElementById('backup-type').value;
-        const res = await apiRequest(`I need ${type} at scene.`, "You are EOC Dispatcher. Acknowledge the request professionally.");
+    function toggleMittCard() {
+        const card = document.getElementById('mitt-card-display');
+        card.style.display = card.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function showTraumaTools() {
         const box = document.getElementById('chat-box');
-        box.innerHTML += `<div class="message bot"><div class="bubble"><strong>[EOC]:</strong> ${res}</div></div>`;
-        box.scrollTop = box.scrollHeight;
+        box.innerHTML += `<div class="msg pt-msg" style="border-color: var(--trauma-purple)">
+            <strong>TRAUMA ADVISORY:</strong><br>
+            - Consider MTC Bypass if ISS > 15<br>
+            - GCS < 13? Airway management priority.<br>
+            - Mechanism: ${currentJob.hidden_data.mechanisms}
+        </div>`;
     }
 
-    function goToManagement() {
-        showSection('treatment');
-    }
-
-    async function finishSim() {
+    async function finishJob() {
+        const pcr = document.getElementById('atmist-pcr').value;
         showSection('feedback');
-        const content = document.getElementById('feedback-content');
-        content.innerHTML = "<p>Analyzing clinical decisions...</p>";
-
-        const data = {
-            case: currentScenario.diag,
-            treatment: document.getElementById('treatments').value,
-            handover: document.getElementById('handover').value
-        };
-
-        const sys = `You are a Senior Clinical Auditor. Analyze the paramedic's work. JSON ONLY:
-        { "diagnosis_review": "", "strengths": "", "improvements": "", "safety_score": "0/10" }`;
+        document.getElementById('audit-text').innerText = "Analyzing clinical data...";
         
-        const res = await apiRequest(JSON.stringify(data), sys, true);
-        if (res) {
-            const audit = JSON.parse(res);
-            content.innerHTML = `
-                <div class="feedback-item diagnosis"><strong>Audit:</strong> ${audit.diagnosis_review}</div>
-                <div class="feedback-item strength"><strong>Strengths:</strong> ${audit.strengths}</div>
-                <div class="feedback-item improvement"><strong>Improvements:</strong> ${audit.improvements}</div>
-                <div class="feedback-item critical"><strong>Safety Score:</strong> ${audit.safety_score}</div>
-            `;
-        }
+        let triageData = triageLogs.map((l, i) => `Pt ${i+1}: Tagged ${l.choice}, Intervention: ${l.intervention}`).join('\n');
+
+        const system = `Audit this UK Paramedic handover. 
+        Incident: ${currentJob.type}. 
+        Major Incident Mode: ${currentJob.isMajorIncident}.
+        Trauma Mode: ${currentJob.isMajorTrauma}.
+        Triage Performed: ${triageData}.
+        Handover: ${pcr}.
+        Score them on JRCALC/NARU standards. Specifically check Triage choices against MITT.`;
+
+        const review = await callGemini("Audit this job.", system);
+        document.getElementById('audit-text').innerHTML = review;
     }
 </script>
 
