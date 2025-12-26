@@ -3,594 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paramedic Clinical Simulation (UK/JRCALC)</title>
+    <title>UK Paramedic Sim (SECAmb Scope)</title>
     <style>
         :root {
             --primary: #005eb8; /* NHS Blue */
-            --secondary: #ae2573; /* NHS Magenta for alerts */
+            --secondary: #ae2573; /* NHS Magenta */
             --accent: #007f3b; /* NHS Green */
             --warning: #ffb81c; /* NHS Yellow */
             --bg: #f0f4f5;
             --text: #212b32;
             --white: #ffffff;
             --border: #d8dde0;
+            --p1: #d63031;
+            --p2: #fdcb6e;
+            --p3: #00b894;
+            --dead: #2d3436;
         }
 
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
 
-        .container {
-            width: 100%;
-            max-width: 850px;
-            background: var(--white);
-            padding: 30px;
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            position: relative;
-            border-top: 8px solid var(--primary);
-        }
+        .container { width: 100%; max-width: 900px; background: var(--white); padding: 30px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; border-top: 8px solid var(--primary); }
 
-        header {
-            border-bottom: 2px solid var(--border);
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        header { border-bottom: 2px solid var(--border); margin-bottom: 25px; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
 
-        .settings-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--primary);
-        }
-
-        #api-settings {
-            display: none;
-            background: #f3f2f1;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-        }
+        .settings-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
+        #api-settings { display: none; background: #f3f2f1; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid var(--border); }
 
         h1 { color: var(--primary); margin: 0; font-size: 1.6rem; letter-spacing: -0.5px; }
         h2 { color: var(--primary); font-size: 1.3rem; margin-top: 25px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
 
-        .section {
-            display: none;
-            animation: fadeIn 0.3s ease-in;
-        }
+        .section { display: none; animation: fadeIn 0.3s ease-in; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .section.active {
-            display: block;
-        }
+        .role-selector { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .role-btn { flex: 1; padding: 12px; border: 2px solid var(--border); background: white; color: var(--primary); cursor: pointer; font-weight: bold; border-radius: 4px; }
+        .role-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.95rem; }
+        textarea, input, select { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 4px; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
 
-        .input-group {
-            margin-bottom: 20px;
-        }
+        button { background-color: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: opacity 0.2s; }
+        button:hover { opacity: 0.9; }
+        button.back-btn { background-color: #768692; padding: 8px 15px; font-size: 0.9rem; margin-right: 10px; }
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
+        .dispatch-info { background: #fff9c4; padding: 15px; border-left: 5px solid #fbc02d; margin-bottom: 20px; color: #444; }
 
-        textarea, input, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--border);
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 1rem;
-            font-family: inherit;
-        }
+        /* Modified Summary Panel to only keep CAD message sticky */
+        .summary-panel { background: #f0f4f5; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid var(--border); font-size: 0.9rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .summary-panel strong { color: var(--primary); display: inline; margin-right: 5px; text-transform: uppercase; font-size: 0.75rem; }
 
-        textarea:focus, input:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
+        .patient-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .patient-card { border: 1px solid var(--border); padding: 10px; border-radius: 4px; background: #fff; }
+        .tst-btn { padding: 5px; font-size: 0.75rem; cursor: pointer; border: 1px solid #ccc; margin-right: 2px; border-radius: 3px; }
+        .tst-p1 { background: var(--p1); color: white; }
+        .tst-p2 { background: var(--p2); color: #000; }
+        .tst-p3 { background: var(--p3); color: white; }
+        .tst-dead { background: var(--dead); color: white; }
 
-        button {
-            background-color: var(--primary);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
+        .eoc-box { background: #fdf2f2; border: 1px solid #fab1a0; padding: 15px; border-radius: 4px; margin-top: 20px; }
+        #chat-box { height: 300px; overflow-y: auto; border: 2px solid var(--border); padding: 15px; background: #fff; margin-bottom: 15px; border-radius: 4px; }
+        .message { margin-bottom: 12px; max-width: 85%; }
+        .message.user { margin-left: auto; text-align: right; }
+        .bubble { display: inline-block; padding: 10px 15px; border-radius: 8px; font-size: 0.95rem; }
+        .message.user .bubble { background: var(--primary); color: white; }
+        .message.bot .bubble { background: #e8edee; color: #212b32; }
 
-        button.back-btn {
-            background-color: #768692;
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            margin-right: 10px;
-        }
-
-        button:hover {
-            filter: brightness(90%);
-        }
-
-        .dispatch-info {
-            background: #fff9c4;
-            padding: 15px;
-            border-left: 5px solid #fbc02d;
-            margin-bottom: 20px;
-            color: #444;
-        }
-
-        .summary-panel {
-            background: #f0f4f5;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-            font-size: 0.9rem;
-        }
-        .summary-panel strong {
-            color: var(--primary);
-            display: block;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-        }
-
-        #chat-box {
-            height: 350px;
-            overflow-y: auto;
-            border: 2px solid var(--border);
-            padding: 15px;
-            background: #ffffff;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
-
-        .message {
-            margin-bottom: 12px;
-            max-width: 85%;
-        }
-
-        .message.user {
-            margin-left: auto;
-            text-align: right;
-        }
-
-        .bubble {
-            display: inline-block;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .message.user .bubble {
-            background: var(--primary);
-            color: white;
-        }
-
-        .message.bot .bubble {
-            background: #e8edee;
-            color: #212b32;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* AUDIT STYLING */
-        .audit-card {
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
-
-        .audit-header {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .feedback-item {
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            border-left: 4px solid #ccc;
-        }
-
+        .audit-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+        .feedback-item { padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #ccc; }
         .feedback-item.diagnosis { border-color: var(--primary); background: #f0f7ff; }
         .feedback-item.strength { border-color: var(--accent); background: #f2faf5; }
         .feedback-item.improvement { border-color: var(--warning); background: #fffdf5; }
         .feedback-item.critical { border-color: var(--secondary); background: #fff5f8; }
 
-        .feedback-title {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 4px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
-
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            background: var(--text);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .error-msg {
-            color: var(--secondary);
-            font-weight: bold;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .jrcalc-badge {
-            display: inline-block;
-            background: var(--accent);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
+        .status-bar { display: flex; justify-content: space-between; background: var(--text); color: white; padding: 10px 20px; border-radius: 4px; margin-bottom: 20px; font-size: 0.8rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>UK Paramedic Sim <span class="jrcalc-badge">JRCALC Edition</span></h1>
+        <h1>UK Paramedic Sim <span style="font-size:0.7rem; background:var(--accent); color:white; padding:2px 8px; border-radius:10px; vertical-align:middle;">SECAmb ROTATION</span></h1>
         <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
     </header>
 
     <div id="api-settings">
-        <label>Google Gemini API Key:</label>
-        <input type="password" id="api-key-input" placeholder="Paste your API key here">
-        <p style="font-size: 0.8rem; margin: 10px 0;">Key is saved locally. Get one at <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</p>
-        <button onclick="saveApiKey()">Save Settings</button>
+        <div class="input-group">
+            <label>Google Gemini API Key:</label>
+            <input type="password" id="api-key-input" placeholder="Paste API key">
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button onclick="saveApiKey()">Save Settings</button>
+            <button onclick="resetRotation()" style="background:#768692;">Reset Rotation (Job 0)</button>
+        </div>
     </div>
 
     <div id="status-bar" class="status-bar" style="display: none;">
-        <span id="display-incident">Category: -</span>
-        <span id="display-location">Location: -</span>
+        <span id="display-role">Role: Not Set</span>
+        <span id="display-job-count">Job: 1</span>
+        <span id="display-type">Type: Normal</span>
     </div>
 
-    <!-- 1. INTRO -->
     <div id="section-intro" class="section active" data-index="1">
-        <h2>New UK Clinical Scenario</h2>
-        <p>Scenarios are generated using <strong>JRCALC guidelines</strong> and <strong>NHS NEWS2</strong> standards.</p>
-        <div class="input-group">
-            <label>Presenting Complaint (optional):</label>
-            <input type="text" id="user-complaint" placeholder="e.g. SOB, Chest Pain, Collapse...">
+        <h2>Crew Selection</h2>
+        <div class="role-selector">
+            <button class="role-btn" id="role-paramedic" onclick="selectRole('Paramedic')">Paramedic Lead</button>
+            <button class="role-btn" id="role-aap" onclick="selectRole('AAP/Technician')">AAP/Technician Lead</button>
         </div>
-        <button onclick="generateScenario()">Dispatch Ambulance</button>
-        <p id="loading-msg" style="display:none; color: var(--primary); margin-top: 10px;">Generating UK clinical case...</p>
-        <p id="config-error" class="error-msg">Please set your API Key in the settings (⚙️) first!</p>
+        
+        <div class="input-group" style="margin-top: 20px; border: 1px solid var(--border); padding: 15px; border-radius: 4px;">
+            <label>Request Specific Job (Optional):</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="scenario-search" placeholder="e.g. Asthma, RTC, Overdose...">
+                <button onclick="generateScenario(true)" style="background: var(--accent); white-space: nowrap;">Request Specific Dispatch</button>
+            </div>
+        </div>
+
+        <button id="dispatch-btn" onclick="generateScenario(false)" style="width:100%; padding:20px; font-size:1.2rem; margin-top: 10px;">Available for Dispatch</button>
+        <p id="loading-msg" style="display:none; color: var(--primary); margin-top: 10px; font-weight:bold;">CAD System Syncing...</p>
     </div>
 
-    <!-- 2. DISPATCH -->
     <div id="section-dispatch" class="section" data-index="2">
-        <h2>Dispatch Details (MDT)</h2>
+        <h2>MDT Dispatch Details</h2>
         <div class="dispatch-info">
             <p><strong>CAD Message:</strong> <span id="dispatch-details"></span></p>
-            <p><strong>Incident Location:</strong> <span id="dispatch-loc"></span></p>
-            <p><strong>Ambulance Response:</strong> <span id="dispatch-cat" style="font-weight:bold;"></span></p>
+            <p><strong>Location:</strong> <span id="dispatch-loc"></span></p>
+            <p><strong>Response:</strong> <span id="dispatch-cat"></span></p>
         </div>
-
         <div class="input-group">
-            <label>Initial Differential Diagnosis:</label>
-            <textarea id="working-diag" rows="3" placeholder="Consider Red Flags..."></textarea>
+            <label>Equipment & Preparation:</label>
+            <textarea id="equip-list" rows="2" placeholder="Drugs, monitor, trauma bags..."></textarea>
         </div>
-
-        <div class="input-group">
-            <label>Kit Preparation:</label>
-            <textarea id="equip-list" rows="2" placeholder="Response bag, Monitor, Oxygen..."></textarea>
-        </div>
-        <button class="back-btn" onclick="goBack()">← Re-dispatch</button>
         <button onclick="goToAssessment()">Mobile at Scene</button>
     </div>
 
-    <!-- 3. ASSESSMENT -->
     <div id="section-assessment" class="section" data-index="3">
-        <h2>Clinical Assessment</h2>
-        
-        <div class="summary-panel">
-            <strong>MDT Dispatch Data:</strong>
-            <div id="dispatch-summary-content" style="white-space: pre-wrap;"></div>
+        <div id="case-header-sticky" class="summary-panel">
+            <strong>CAD Message:</strong> <span id="dispatch-summary-content"></span>
         </div>
 
-        <p>Conduct your primary and secondary survey. Use <strong>SBAR/SAMPLE</strong>.</p>
-        
-        <div id="chat-box">
-            <div class="message bot">
-                <div class="bubble">You have arrived. Patient is found as described. Begin assessment.</div>
+        <div id="normal-assessment">
+            <h2>Clinical Assessment</h2>
+            <div id="chat-box"></div>
+            <div class="controls">
+                <input type="text" id="chat-input" placeholder="Ask/Examine..." onkeypress="handleAssessmentKey(event)">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+            <div class="eoc-box">
+                <label>Call EOC for Backup:</label>
+                <select id="backup-type">
+                    <option value="">-- Resource --</option>
+                    <option value="Cat 1 Backup">Cat 1 Backup</option>
+                    <option value="CCP">CCP (Advanced Skills)</option>
+                    <option value="HART">HART</option>
+                </select>
+                <button onclick="requestBackup()">Call Dispatch</button>
             </div>
         </div>
 
-        <div class="controls">
-            <input type="text" id="chat-input" placeholder="Ask patient / Observe finding..." onkeypress="handleKey(event)">
-            <button onclick="sendMessage()">Send</button>
+        <div id="major-incident-assessment" style="display:none;">
+            <h2>MAJOR INCIDENT: Ten Second Triage (TST)</h2>
+            <p>Assess the casualties below. Provide a METHANE report to EOC.</p>
+            <div class="input-group">
+                <label>METHANE Report:</label>
+                <textarea id="methane-report" rows="4" placeholder="M: Major Incident, E: Exact Location..."></textarea>
+            </div>
+            <div class="patient-grid" id="mi-patient-grid"></div>
         </div>
 
-        <div style="margin-top: 20px;">
-            <button class="back-btn" onclick="goBack()">← Back to MDT</button>
-            <button onclick="goToTreatment()">Formulate Management Plan</button>
-        </div>
+        <button onclick="goToTreatment()" style="margin-top:20px; width:100%;">Proceed to Management</button>
     </div>
 
-    <!-- 4. TREATMENT -->
     <div id="section-treatment" class="section" data-index="4">
-        <h2>Management & Handover</h2>
-
         <div class="summary-panel">
-            <strong>On-Scene Findings:</strong>
-            <div id="treatment-summary-content" style="white-space: pre-wrap;"></div>
+            <strong>CAD Message:</strong> <span id="treatment-summary-content"></span>
         </div>
-        
-        <div class="input-group">
-            <label>Interventions (JRCALC Drugs/Doses):</label>
-            <textarea id="treatments" rows="4" placeholder="e.g. Salbutamol 5mg neb, Paracetamol 1g..."></textarea>
+
+        <h2 id="treatment-title">Management Plan</h2>
+        <div id="normal-treatment">
+            <div class="input-group">
+                <label>Interventions (JRCALC/SECAmb):</label>
+                <textarea id="treatments" rows="3" placeholder="Drugs, dosages, splintage..."></textarea>
+            </div>
+            <div class="input-group" id="handover-box">
+                <label id="handover-label">ATMIST Handover (A&E):</label>
+                <textarea id="handover" rows="5"></textarea>
+            </div>
         </div>
-        <div class="input-group">
-            <label>ATMIST Handover:</label>
-            <textarea id="handover" rows="6" placeholder="A: Age, T: Time, M: Mechanism..."></textarea>
+
+        <div id="mi-treatment" style="display:none;">
+            <label>Priority Patient Management (P1/P2) & MITT:</label>
+            <textarea id="mi-management" rows="6" placeholder="Refer to JRCALC & MITT format..."></textarea>
         </div>
-        <button class="back-btn" onclick="goBack()">← Back to Assessment</button>
-        <button onclick="finishSim()">Handover to A&E</button>
+
+        <button onclick="finishSim()">Complete Task</button>
     </div>
 
-    <!-- 5. FEEDBACK -->
     <div id="section-feedback" class="section" data-index="5">
         <div class="audit-card">
-            <div class="audit-header">📋 Clinical Audit Report</div>
-            <div id="feedback-content">
-                <p>Reviewing clinical performance against UK standards...</p>
-            </div>
+            <h2 id="audit-title">Clinical Audit Report</h2>
+            <div id="feedback-content"></div>
         </div>
-        <button style="margin-top: 10px;" onclick="location.reload()">Clear for Next Call</button>
+        <button onclick="location.reload()" style="width:100%;">Clear & Next Job</button>
     </div>
 </div>
 
 <script>
     let savedKey = localStorage.getItem('PARAMEDIC_SIM_API_KEY') || "";
-    document.getElementById('api-key-input').value = savedKey;
-
-    const sectionIds = ['intro', 'dispatch', 'assessment', 'treatment', 'feedback'];
-    let currentSectionIndex = 1;
+    let selectedRole = "Paramedic";
+    let jobCount = parseInt(localStorage.getItem('PARAMEDIC_JOB_COUNT')) || 0;
+    let currentType = "Normal";
     let currentScenario = null;
     let chatHistory = [];
+    let miTriage = {};
+
+    document.getElementById('api-key-input').value = savedKey;
+
+    function selectRole(r) {
+        selectedRole = r;
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+        const id = (r === 'Paramedic') ? 'role-paramedic' : 'role-aap';
+        document.getElementById(id).classList.add('selected');
+        document.getElementById('display-role').innerText = "Role: " + r;
+    }
+    selectRole('Paramedic');
 
     function toggleSettings() {
-        const panel = document.getElementById('api-settings');
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        const p = document.getElementById('api-settings');
+        p.style.display = p.style.display === 'block' ? 'none' : 'block';
     }
 
     function saveApiKey() {
-        const val = document.getElementById('api-key-input').value.trim();
-        localStorage.setItem('PARAMEDIC_SIM_API_KEY', val);
-        savedKey = val;
-        alert("Settings saved!");
+        savedKey = document.getElementById('api-key-input').value.trim();
+        localStorage.setItem('PARAMEDIC_SIM_API_KEY', savedKey);
         toggleSettings();
     }
 
-    async function callGemini(prompt, systemPrompt = "", isJson = false) {
-        if (!savedKey) {
-            document.getElementById('config-error').style.display = 'block';
-            toggleSettings();
-            return null;
+    function resetRotation() {
+        jobCount = 0;
+        localStorage.setItem('PARAMEDIC_JOB_COUNT', 0);
+        alert("Rotation reset.");
+        location.reload();
+    }
+
+    async function callGemini(prompt, sys, isJson = false) {
+        const apiKey = savedKey || "";
+        if(!apiKey) { 
+            alert("Please enter your Gemini API Key in the settings first."); 
+            return null; 
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${savedKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
-            systemInstruction: { parts: [{ text: systemPrompt }] }
+            systemInstruction: { parts: [{ text: sys }] }
         };
 
-        if (isJson) {
+        if(isJson) {
             payload.generationConfig = { 
-                responseMimeType: "application/json",
+                responseMimeType: "application/json"
             };
         }
 
-        for (let i = 0; i < 5; i++) {
+        const fetchWithRetry = async (retries = 0) => {
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const data = await response.json();
-                if (data.error) throw new Error(data.error.message);
-                return data.candidates?.[0]?.content?.parts?.[0]?.text;
-            } catch (e) {
-                if (i === 4) alert("API Connection Error.");
-                await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+                if (!response.ok) throw new Error(response.statusText);
+                return await response.json();
+            } catch (err) {
+                if (retries < 5) {
+                    await new Promise(res => setTimeout(res, Math.pow(2, retries) * 1000));
+                    return fetchWithRetry(retries + 1);
+                }
+                throw err;
             }
+        };
+
+        try {
+            const result = await fetchWithRetry();
+            const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            return text;
+        } catch (e) {
+            alert("Failed to communicate with CAD system. Please check your key or connection.");
+            return null;
         }
-        return null;
     }
 
-    async function generateScenario() {
-        const complaint = document.getElementById('user-complaint').value;
-        document.getElementById('loading-msg').style.display = 'block';
-        document.getElementById('config-error').style.display = 'none';
-
-        const systemPrompt = `You are a UK Paramedic Clinical Educator. 
-        Return JSON ONLY:
-        {
-            "dispatch_summary": "CAD description",
-            "location": "UK location",
-            "category": "Category 1-4",
-            "patient_details": { "age": 0, "gender": "", "pmh": "", "meds": "", "allergies": "" },
-            "vitals": { "hr": 0, "bp": "0/0", "rr": 0, "spo2": 0, "temp": 0, "gcs": 15, "bm": 0, "news2": 0 },
-            "actual_diagnosis": "UK term",
-            "personality": "speech pattern"
-        }`;
-
-        const prompt = `Create a case for: ${complaint || 'random'}. Standard UK protocols.`;
-        const result = await callGemini(prompt, systemPrompt, true);
+    function determineJobType() {
+        jobCount++;
+        localStorage.setItem('PARAMEDIC_JOB_COUNT', jobCount);
         
-        if (result) {
-            currentScenario = JSON.parse(result);
-            document.getElementById('dispatch-details').innerText = currentScenario.dispatch_summary;
-            document.getElementById('dispatch-loc').innerText = currentScenario.location;
-            document.getElementById('dispatch-cat').innerText = currentScenario.category;
-            showSection('dispatch');
-            document.getElementById('status-bar').style.display = 'flex';
-            document.getElementById('display-incident').innerText = "Category: " + currentScenario.category;
-            document.getElementById('display-location').innerText = "Loc: " + currentScenario.location;
+        const pos = jobCount % 20;
+        if (pos === 5) return "Category 1";
+        if (pos === 10) return "Major Trauma";
+        if (pos === 15) return "Major Incident";
+        if (pos === 0 && jobCount !== 0) return "Discharge/APP";
+        return "Routine";
+    }
+
+    async function generateScenario(isSpecific = false) {
+        const searchText = document.getElementById('scenario-search').value.trim();
+        
+        if (isSpecific) {
+            if (!searchText) {
+                alert("Please enter a scenario type to search.");
+                return;
+            }
+            currentType = "Requested: " + searchText;
+        } else {
+            currentType = determineJobType();
         }
-        document.getElementById('loading-msg').style.display = 'none';
+
+        const btn = document.getElementById('dispatch-btn');
+        const loadingMsg = document.getElementById('loading-msg');
+        
+        btn.disabled = true;
+        loadingMsg.style.display = 'block';
+        
+        const sysPrompt = `You are a SECAmb (South East Coast Ambulance Service) Clinical Scenario Generator.
+        Generate a realistic ${currentType} paramedic scenario. 
+        You MUST return valid JSON ONLY:
+        { 
+          "dispatch": "Brief CAD text", 
+          "loc": "Town in Kent/Sussex/Surrey", 
+          "cat": "Cat 1-4", 
+          "vitals": {"hr":80,"bp":"120/80","rr":16,"spo2":98,"temp":36.5,"gcs":15,"bm":5.5}, 
+          "diag": "Clinical Diagnosis", 
+          "mi_patients": [] 
+        }
+        
+        Special Instructions:
+        - If Category 1: Cardiac arrest or peri-arrest.
+        - If Major Trauma: Significant injury (RTC, Fall >2m).
+        - If Major Incident: Set 'mi_patients' to an array of 10 objects with 'desc' strings describing casualties.
+        - If Requested: Tailor the scenario specifically to the topic "${searchText}".`;
+
+        const res = await callGemini(isSpecific ? `Dispatch a job specifically about: ${searchText}` : `Dispatch a ${currentType} job.`, sysPrompt, true);
+        
+        if(res) {
+            try {
+                currentScenario = JSON.parse(res);
+                document.getElementById('dispatch-details').innerText = currentScenario.dispatch;
+                document.getElementById('dispatch-loc').innerText = currentScenario.loc;
+                document.getElementById('dispatch-cat').innerText = currentScenario.cat;
+                
+                document.getElementById('status-bar').style.display = 'flex';
+                document.getElementById('display-job-count').innerText = "Job: " + jobCount;
+                document.getElementById('display-type').innerText = "Type: " + currentType;
+                
+                showSection('dispatch');
+            } catch (err) {
+                alert("CAD Data Error. Please try again.");
+            }
+        }
+        
+        btn.disabled = false;
+        loadingMsg.style.display = 'none';
     }
 
     function showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        const nextSection = document.getElementById('section-' + id);
-        nextSection.classList.add('active');
-        currentSectionIndex = parseInt(nextSection.dataset.index);
+        document.getElementById('section-' + id).classList.add('active');
         window.scrollTo(0, 0);
         updateSummaries();
     }
 
-    function goBack() {
-        if (currentSectionIndex > 1) showSection(sectionIds[currentSectionIndex - 2]);
-    }
-
     function updateSummaries() {
-        if (!currentScenario) return;
-        const disp = `CAD: ${currentScenario.dispatch_summary}\nLOC: ${currentScenario.location}\nCAT: ${currentScenario.category}\nPLAN: ${document.getElementById('working-diag').value || 'None'}`;
-        document.getElementById('dispatch-summary-content').innerText = disp;
-
-        let chatLog = chatHistory.map(c => `Q: ${c.q}\nA: ${c.a}`).join('\n---\n');
-        document.getElementById('treatment-summary-content').innerText = `${disp}\n\nASSESSMENT:\n${chatLog || 'None'}`;
+        if(!currentScenario) return;
+        // Only the CAD message is placed in the summary span now
+        document.getElementById('dispatch-summary-content').innerText = currentScenario.dispatch;
+        document.getElementById('treatment-summary-content').innerText = currentScenario.dispatch;
     }
 
-    function goToAssessment() { showSection('assessment'); }
-    function goToTreatment() { showSection('treatment'); }
-    function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+    function goToAssessment() {
+        chatHistory = []; 
+        document.getElementById('chat-box').innerHTML = '';
+        if(currentType === "Major Incident" || currentScenario.mi_patients?.length > 0) {
+            document.getElementById('normal-assessment').style.display = 'none';
+            document.getElementById('major-incident-assessment').style.display = 'block';
+            renderMIPatients();
+        } else {
+            document.getElementById('normal-assessment').style.display = 'block';
+            document.getElementById('major-incident-assessment').style.display = 'none';
+        }
+        showSection('assessment');
+    }
+
+    function renderMIPatients() {
+        const grid = document.getElementById('mi-patient-grid');
+        grid.innerHTML = '';
+        (currentScenario.mi_patients || []).forEach((p, idx) => {
+            const card = document.createElement('div');
+            card.className = 'patient-card';
+            card.innerHTML = `
+                <p><strong>#${idx+1}:</strong> ${p.desc}</p>
+                <div id="tst-status-${idx}">Unset</div>
+                <button class="tst-btn tst-p1" onclick="setTriage(${idx}, 'P1')">P1</button>
+                <button class="tst-btn tst-p2" onclick="setTriage(${idx}, 'P2')">P2</button>
+                <button class="tst-btn tst-p3" onclick="setTriage(${idx}, 'P3')">P3</button>
+                <button class="tst-btn tst-dead" onclick="setTriage(${idx}, 'Dead')">D</button>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function setTriage(idx, cat) {
+        miTriage[idx] = cat;
+        document.getElementById(`tst-status-${idx}`).innerText = cat;
+    }
+
+    function goToTreatment() {
+        if(currentType === "Major Incident" || currentScenario.mi_patients?.length > 0) {
+            document.getElementById('normal-treatment').style.display = 'none';
+            document.getElementById('mi-treatment').style.display = 'block';
+        } else {
+            document.getElementById('normal-treatment').style.display = 'block';
+            document.getElementById('mi-treatment').style.display = 'none';
+            document.getElementById('handover-label').innerText = currentType === "Discharge/APP" ? "APP Handover:" : "ATMIST Handover:";
+        }
+        showSection('treatment');
+    }
+
+    function handleAssessmentKey(e) { if(e.key === 'Enter') sendMessage(); }
 
     async function sendMessage() {
         const input = document.getElementById('chat-input');
+        const box = document.getElementById('chat-box');
         const text = input.value.trim();
-        if (!text) return;
-
-        addMessage(text, 'user');
+        if(!text) return;
         input.value = '';
+        
+        box.innerHTML += `<div class="message user"><div class="bubble">${text}</div></div>`;
+        box.scrollTop = box.scrollHeight;
 
-        const systemPrompt = `You are a patient in a UK Paramedic Sim. Diagnosis: ${currentScenario.actual_diagnosis}. History: ${JSON.stringify(currentScenario.patient_details)}. Vitals: ${JSON.stringify(currentScenario.vitals)}. Use UK terms. Respond realistically.`;
-        const response = await callGemini(text, systemPrompt);
-        if (response) {
-            addMessage(response, 'bot');
-            chatHistory.push({ q: text, a: response });
+        const sys = `Patient Diagnosis: ${currentScenario.diag}. Vitals: ${JSON.stringify(currentScenario.vitals)}. 
+        Respond in character as the patient/bystander. Be realistic for SECAmb paramedics.`;
+        
+        const res = await callGemini(text, sys);
+        if(res) {
+            box.innerHTML += `<div class="message bot"><div class="bubble">${res}</div></div>`;
+            chatHistory.push({q: text, a: res});
+            box.scrollTop = box.scrollHeight;
         }
     }
 
-    function addMessage(text, type) {
-        const box = document.getElementById('chat-box');
-        const div = document.createElement('div');
-        div.className = `message ${type}`;
-        div.innerHTML = `<div class="bubble">${text}</div>`;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
+    async function requestBackup() {
+        const t = document.getElementById('backup-type').value;
+        const sys = "You are EOC Dispatcher. Acknowledge backup request.";
+        const res = await callGemini(`Backup: ${t}`, sys);
+        document.getElementById('chat-box').innerHTML += `<div class="message bot"><div class="bubble"><strong>[EOC]:</strong> ${res}</div></div>`;
     }
 
     async function finishSim() {
         showSection('feedback');
-        const feedbackContainer = document.getElementById('feedback-content');
-        feedbackContainer.innerHTML = '<p>Generating professional audit report...</p>';
-        
-        const data = {
-            diag: document.getElementById('working-diag').value,
+        const content = document.getElementById('feedback-content');
+        content.innerHTML = "<p>Auditing performance...</p>";
+
+        const sys = `Auditor for SECAmb. Evaluate performance. JSON ONLY: { "diag_review": "", "strengths": "", "improvements": "", "safety": "" }`;
+        const auditData = {
+            diag: currentScenario.diag,
             treatment: document.getElementById('treatments').value,
             handover: document.getElementById('handover').value
         };
 
-        const systemPrompt = `You are a UK Paramedic Auditor. Analyze the case. 
-        Return JSON ONLY in this format:
-        {
-            "actual_diagnosis": "term",
-            "strengths": ["point 1", "point 2"],
-            "improvements": ["point 1"],
-            "critical_omissions": ["serious gaps if any"],
-            "jrcalc_review": "Specific guideline feedback"
-        }`;
-
-        const prompt = `Case: ${currentScenario.actual_diagnosis}. Student Diagnosis: ${data.diag}. Interventions: ${data.treatment}. Handover: ${data.handover}. History: ${JSON.stringify(chatHistory)}`;
-
-        const result = await callGemini(prompt, systemPrompt, true);
-        
-        if (result) {
-            const audit = JSON.parse(result);
-            let html = `
-                <div class="feedback-item diagnosis">
-                    <span class="feedback-title">Final Clinical Diagnosis</span>
-                    ${audit.actual_diagnosis}
-                </div>
-                
-                <div class="feedback-item strength">
-                    <span class="feedback-title">Clinical Strengths</span>
-                    <ul>${audit.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
-                </div>
-
-                <div class="feedback-item improvement">
-                    <span class="feedback-title">Development Areas</span>
-                    <ul>${audit.improvements.map(i => `<li>${i}</li>`).join('')}</ul>
-                </div>
+        const res = await callGemini(JSON.stringify(auditData), sys, true);
+        if(res) {
+            const audit = JSON.parse(res);
+            content.innerHTML = `
+                <div class="feedback-item diagnosis"><strong>Review:</strong> ${audit.diag_review}</div>
+                <div class="feedback-item strength"><strong>Strengths:</strong> ${audit.strengths}</div>
+                <div class="feedback-item improvement"><strong>Improvements:</strong> ${audit.improvements}</div>
+                <div class="feedback-item critical"><strong>Safety:</strong> ${audit.safety}</div>
             `;
-
-            if (audit.critical_omissions && audit.critical_omissions.length > 0) {
-                html += `
-                <div class="feedback-item critical">
-                    <span class="feedback-title">Critical Safety Omissions</span>
-                    <ul>${audit.critical_omissions.map(o => `<li>${o}</li>`).join('')}</ul>
-                </div>`;
-            }
-
-            html += `
-                <div class="feedback-item diagnosis">
-                    <span class="feedback-title">JRCALC / NEWS2 Compliance</span>
-                    ${audit.jrcalc_review}
-                </div>
-            `;
-
-            feedbackContainer.innerHTML = html;
-        } else {
-            feedbackContainer.innerHTML = "<p>Error generating report.</p>";
         }
     }
 </script>
-
 </body>
 </html>
 
