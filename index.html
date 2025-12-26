@@ -20,470 +20,381 @@
             --dead: #2d3436;
         }
 
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; justify-content: center; }
 
-        .container { width: 100%; max-width: 900px; background: var(--white); padding: 30px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; border-top: 8px solid var(--primary); }
+        .container { width: 100%; max-width: 800px; background: var(--white); padding: 20px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; border-top: 8px solid var(--primary); min-height: 90vh; }
 
-        header { border-bottom: 2px solid var(--border); margin-bottom: 25px; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        header { border-bottom: 2px solid var(--border); margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
 
-        .settings-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
+        .settings-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--primary); }
         #api-settings { display: none; background: #f3f2f1; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid var(--border); }
 
-        h1 { color: var(--primary); margin: 0; font-size: 1.6rem; letter-spacing: -0.5px; }
-        h2 { color: var(--primary); font-size: 1.3rem; margin-top: 25px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        h1 { color: var(--primary); margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; }
+        h2 { color: var(--primary); font-size: 1.2rem; margin-top: 20px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
 
         .section { display: none; animation: fadeIn 0.3s ease-in; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .role-selector { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-        .role-btn { flex: 1; padding: 12px; border: 2px solid var(--border); background: white; color: var(--primary); cursor: pointer; font-weight: bold; border-radius: 4px; }
+        .role-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .role-btn { flex: 1; padding: 12px; border: 2px solid var(--border); background: white; color: var(--primary); cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.9rem; }
         .role-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.95rem; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
         textarea, input, select { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 4px; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
 
-        button { background-color: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: opacity 0.2s; }
-        button:hover { opacity: 0.9; }
-        button.back-btn { background-color: #768692; padding: 8px 15px; font-size: 0.9rem; margin-right: 10px; }
+        button { background-color: var(--primary); color: white; padding: 14px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background 0.2s; width: 100%; }
+        button:hover { background-color: #004a99; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-        .dispatch-info { background: #fff9c4; padding: 15px; border-left: 5px solid #fbc02d; margin-bottom: 20px; color: #444; }
+        .dispatch-info { background: #fff9c4; padding: 15px; border-left: 5px solid #fbc02d; margin-bottom: 20px; color: #444; font-size: 0.95rem; }
 
-        /* Modified Summary Panel to only keep CAD message sticky */
-        .summary-panel { background: #f0f4f5; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid var(--border); font-size: 0.9rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .summary-panel strong { color: var(--primary); display: inline; margin-right: 5px; text-transform: uppercase; font-size: 0.75rem; }
+        .summary-panel { background: #f0f4f5; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid var(--border); font-size: 0.9rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .summary-panel strong { color: var(--primary); text-transform: uppercase; font-size: 0.7rem; margin-right: 5px; }
 
-        .patient-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .patient-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
         .patient-card { border: 1px solid var(--border); padding: 10px; border-radius: 4px; background: #fff; }
-        .tst-btn { padding: 5px; font-size: 0.75rem; cursor: pointer; border: 1px solid #ccc; margin-right: 2px; border-radius: 3px; }
-        .tst-p1 { background: var(--p1); color: white; }
-        .tst-p2 { background: var(--p2); color: #000; }
-        .tst-p3 { background: var(--p3); color: white; }
-        .tst-dead { background: var(--dead); color: white; }
+        .tst-btn-group { display: flex; gap: 5px; margin-top: 8px; }
+        .tst-btn { flex: 1; padding: 8px; font-size: 0.8rem; cursor: pointer; border: 1px solid #ccc; border-radius: 3px; font-weight: bold; }
+        .tst-p1 { background: var(--p1); color: white; border: none; }
+        .tst-p2 { background: var(--p2); color: #000; border: none; }
+        .tst-p3 { background: var(--p3); color: white; border: none; }
 
-        .eoc-box { background: #fdf2f2; border: 1px solid #fab1a0; padding: 15px; border-radius: 4px; margin-top: 20px; }
-        #chat-box { height: 300px; overflow-y: auto; border: 2px solid var(--border); padding: 15px; background: #fff; margin-bottom: 15px; border-radius: 4px; }
-        .message { margin-bottom: 12px; max-width: 85%; }
-        .message.user { margin-left: auto; text-align: right; }
-        .bubble { display: inline-block; padding: 10px 15px; border-radius: 8px; font-size: 0.95rem; }
-        .message.user .bubble { background: var(--primary); color: white; }
-        .message.bot .bubble { background: #e8edee; color: #212b32; }
+        #chat-box { height: 250px; overflow-y: auto; border: 2px solid var(--border); padding: 10px; background: #fff; margin-bottom: 10px; border-radius: 4px; }
+        .message { margin-bottom: 10px; display: flex; flex-direction: column; }
+        .message.user { align-items: flex-end; }
+        .bubble { max-width: 85%; padding: 10px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; }
+        .message.user .bubble { background: var(--primary); color: white; border-bottom-right-radius: 0; }
+        .message.bot .bubble { background: #e8edee; color: #212b32; border-bottom-left-radius: 0; }
 
-        .audit-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 15px; }
-        .feedback-item { padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #ccc; }
+        .status-bar { display: flex; justify-content: space-between; background: var(--text); color: white; padding: 8px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 0.75rem; font-weight: bold; }
+        
+        .audit-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+        .feedback-item { padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #ccc; font-size: 0.9rem; }
         .feedback-item.diagnosis { border-color: var(--primary); background: #f0f7ff; }
         .feedback-item.strength { border-color: var(--accent); background: #f2faf5; }
         .feedback-item.improvement { border-color: var(--warning); background: #fffdf5; }
         .feedback-item.critical { border-color: var(--secondary); background: #fff5f8; }
 
-        .status-bar { display: flex; justify-content: space-between; background: var(--text); color: white; padding: 10px 20px; border-radius: 4px; margin-bottom: 20px; font-size: 0.8rem; font-weight: bold; }
+        .loader { text-align: center; display: none; margin: 10px 0; color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>UK Paramedic Sim <span style="font-size:0.7rem; background:var(--accent); color:white; padding:2px 8px; border-radius:10px; vertical-align:middle;">SECAmb ROTATION</span></h1>
+        <h1>UK Paramedic Sim <span style="font-size:0.6rem; background:var(--accent); color:white; padding:2px 6px; border-radius:10px; vertical-align:middle;">SECAmb ROTATION</span></h1>
         <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
     </header>
 
     <div id="api-settings">
-        <div class="input-group">
-            <label>Google Gemini API Key:</label>
-            <input type="password" id="api-key-input" placeholder="Paste API key">
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button onclick="saveApiKey()">Save Settings</button>
-            <button onclick="resetRotation()" style="background:#768692;">Reset Rotation (Job 0)</button>
-        </div>
+        <p style="font-size: 0.8rem; margin-bottom: 10px; color: #666;">Rotation Settings</p>
+        <button onclick="resetRotation()" style="background:#768692; padding: 8px;">Reset Rotation (Job 1)</button>
     </div>
 
     <div id="status-bar" class="status-bar" style="display: none;">
-        <span id="display-role">Role: Not Set</span>
+        <span id="display-role">Role: Paramedic</span>
         <span id="display-job-count">Job: 1</span>
-        <span id="display-type">Type: Normal</span>
+        <span id="display-type">Type: Routine</span>
     </div>
 
-    <div id="section-intro" class="section active" data-index="1">
+    <!-- START SECTION -->
+    <div id="section-intro" class="section active">
         <h2>Crew Selection</h2>
         <div class="role-selector">
-            <button class="role-btn" id="role-paramedic" onclick="selectRole('Paramedic')">Paramedic Lead</button>
-            <button class="role-btn" id="role-aap" onclick="selectRole('AAP/Technician')">AAP/Technician Lead</button>
+            <button class="role-btn selected" id="role-paramedic" onclick="selectRole('Paramedic')">Paramedic Lead</button>
+            <button class="role-btn" id="role-aap" onclick="selectRole('AAP/Technician')">AAP/Technician</button>
         </div>
         
-        <div class="input-group" style="margin-top: 20px; border: 1px solid var(--border); padding: 15px; border-radius: 4px;">
-            <label>Request Specific Job (Optional):</label>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="scenario-search" placeholder="e.g. Asthma, RTC, Overdose...">
-                <button onclick="generateScenario(true)" style="background: var(--accent); white-space: nowrap;">Request Specific Dispatch</button>
+        <div class="input-group" style="background: #f9f9f9; padding: 15px; border-radius: 4px; border: 1px solid #eee;">
+            <label>Request Specific Case (e.g. Stroke, Cardiac, RTC):</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="scenario-search" placeholder="Enter keyword...">
+                <button onclick="generateScenario(true)" style="background: var(--accent); width: auto; white-space: nowrap; padding: 0 15px;">Go</button>
             </div>
         </div>
 
-        <button id="dispatch-btn" onclick="generateScenario(false)" style="width:100%; padding:20px; font-size:1.2rem; margin-top: 10px;">Available for Dispatch</button>
-        <p id="loading-msg" style="display:none; color: var(--primary); margin-top: 10px; font-weight:bold;">CAD System Syncing...</p>
+        <button id="dispatch-btn" onclick="generateScenario(false)" style="font-size: 1.1rem; height: 60px;">AVAILABLE FOR DISPATCH</button>
+        <div id="loading-msg" class="loader">CAD SYSTEM SYNCING...</div>
     </div>
 
-    <div id="section-dispatch" class="section" data-index="2">
-        <h2>MDT Dispatch Details</h2>
+    <!-- DISPATCH SECTION -->
+    <div id="section-dispatch" class="section">
+        <h2>MDT Dispatch</h2>
         <div class="dispatch-info">
-            <p><strong>CAD Message:</strong> <span id="dispatch-details"></span></p>
-            <p><strong>Location:</strong> <span id="dispatch-loc"></span></p>
-            <p><strong>Response:</strong> <span id="dispatch-cat"></span></p>
+            <p><strong>CAD:</strong> <span id="dispatch-details"></span></p>
+            <p><strong>LOC:</strong> <span id="dispatch-loc"></span></p>
+            <p><strong>CAT:</strong> <span id="dispatch-cat"></span></p>
         </div>
         <div class="input-group">
-            <label>Equipment & Preparation:</label>
-            <textarea id="equip-list" rows="2" placeholder="Drugs, monitor, trauma bags..."></textarea>
+            <label>En-route Preparation:</label>
+            <textarea id="equip-list" rows="2" placeholder="List equipment or drugs to prep..."></textarea>
         </div>
-        <button onclick="goToAssessment()">Mobile at Scene</button>
+        <button onclick="showSection('assessment')">MOBILE AT SCENE</button>
     </div>
 
-    <div id="section-assessment" class="section" data-index="3">
-        <div id="case-header-sticky" class="summary-panel">
-            <strong>CAD Message:</strong> <span id="dispatch-summary-content"></span>
+    <!-- ASSESSMENT SECTION -->
+    <div id="section-assessment" class="section">
+        <div class="summary-panel">
+            <strong>CAD MESSAGE:</strong> <span class="cad-summary"></span>
         </div>
 
         <div id="normal-assessment">
-            <h2>Clinical Assessment</h2>
+            <h2>On-Scene Assessment</h2>
             <div id="chat-box"></div>
-            <div class="controls">
-                <input type="text" id="chat-input" placeholder="Ask/Examine..." onkeypress="handleAssessmentKey(event)">
-                <button onclick="sendMessage()">Send</button>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="chat-input" placeholder="Ask patient / perform exam..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()" style="width: 80px;">Send</button>
             </div>
+            
             <div class="eoc-box">
-                <label>Call EOC for Backup:</label>
-                <select id="backup-type">
-                    <option value="">-- Resource --</option>
-                    <option value="Cat 1 Backup">Cat 1 Backup</option>
-                    <option value="CCP">CCP (Advanced Skills)</option>
-                    <option value="HART">HART</option>
-                </select>
-                <button onclick="requestBackup()">Call Dispatch</button>
+                <label>Call Dispatch (Backup/CCP):</label>
+                <div style="display: flex; gap: 5px;">
+                    <select id="backup-type">
+                        <option value="General Backup">General Backup</option>
+                        <option value="CCP (Critical Care)">CCP (Critical Care)</option>
+                        <option value="HART">HART</option>
+                        <option value="Police/Fire">Police/Fire</option>
+                    </select>
+                    <button onclick="requestBackup()" style="width: auto; background: var(--secondary);">Call</button>
+                </div>
             </div>
         </div>
 
-        <div id="major-incident-assessment" style="display:none;">
-            <h2>MAJOR INCIDENT: Ten Second Triage (TST)</h2>
-            <p>Assess the casualties below. Provide a METHANE report to EOC.</p>
-            <div class="input-group">
-                <label>METHANE Report:</label>
-                <textarea id="methane-report" rows="4" placeholder="M: Major Incident, E: Exact Location..."></textarea>
-            </div>
+        <div id="mi-assessment" style="display:none;">
+            <h2>Major Incident Triage</h2>
             <div class="patient-grid" id="mi-patient-grid"></div>
+            <div class="input-group" style="margin-top: 15px;">
+                <label>METHANE Report:</label>
+                <textarea id="methane-report" rows="3" placeholder="Major incident, Exact loc, Type..."></textarea>
+            </div>
         </div>
 
-        <button onclick="goToTreatment()" style="margin-top:20px; width:100%;">Proceed to Management</button>
+        <button onclick="goToManagement()" style="margin-top: 20px;">PROCEED TO MANAGEMENT</button>
     </div>
 
-    <div id="section-treatment" class="section" data-index="4">
+    <!-- TREATMENT SECTION -->
+    <div id="section-treatment" class="section">
         <div class="summary-panel">
-            <strong>CAD Message:</strong> <span id="treatment-summary-content"></span>
+            <strong>CAD MESSAGE:</strong> <span class="cad-summary"></span>
         </div>
-
-        <h2 id="treatment-title">Management Plan</h2>
-        <div id="normal-treatment">
-            <div class="input-group">
-                <label>Interventions (JRCALC/SECAmb):</label>
-                <textarea id="treatments" rows="3" placeholder="Drugs, dosages, splintage..."></textarea>
-            </div>
-            <div class="input-group" id="handover-box">
-                <label id="handover-label">ATMIST Handover (A&E):</label>
-                <textarea id="handover" rows="5"></textarea>
-            </div>
+        <h2>Clinical Management</h2>
+        <div class="input-group">
+            <label>Interventions & Medications:</label>
+            <textarea id="treatments" rows="4" placeholder="Drugs, doses, immobilization, IV access..."></textarea>
         </div>
-
-        <div id="mi-treatment" style="display:none;">
-            <label>Priority Patient Management (P1/P2) & MITT:</label>
-            <textarea id="mi-management" rows="6" placeholder="Refer to JRCALC & MITT format..."></textarea>
+        <div class="input-group">
+            <label id="handover-label">ATMIST Handover:</label>
+            <textarea id="handover" rows="4" placeholder="Age, Time, Mechanism, Injury, Signs, Treatment..."></textarea>
         </div>
-
-        <button onclick="finishSim()">Complete Task</button>
+        <button onclick="finishSim()" style="background: var(--accent);">COMPLETE & AUDIT</button>
     </div>
 
-    <div id="section-feedback" class="section" data-index="5">
+    <!-- AUDIT SECTION -->
+    <div id="section-feedback" class="section">
         <div class="audit-card">
-            <h2 id="audit-title">Clinical Audit Report</h2>
+            <h2>Clinical Audit Report</h2>
             <div id="feedback-content"></div>
         </div>
-        <button onclick="location.reload()" style="width:100%;">Clear & Next Job</button>
+        <button onclick="location.reload()" style="margin-top: 15px; background: #768692;">NEXT JOB</button>
     </div>
 </div>
 
 <script>
-    let savedKey = localStorage.getItem('PARAMEDIC_SIM_API_KEY') || "";
+    const apiKey = ""; // Environment provided
     let selectedRole = "Paramedic";
-    let jobCount = parseInt(localStorage.getItem('PARAMEDIC_JOB_COUNT')) || 0;
-    let currentType = "Normal";
+    let jobCount = parseInt(localStorage.getItem('PARAMEDIC_JOB_COUNT')) || 1;
     let currentScenario = null;
-    let chatHistory = [];
     let miTriage = {};
-
-    document.getElementById('api-key-input').value = savedKey;
 
     function selectRole(r) {
         selectedRole = r;
         document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
-        const id = (r === 'Paramedic') ? 'role-paramedic' : 'role-aap';
-        document.getElementById(id).classList.add('selected');
+        document.getElementById(r === 'Paramedic' ? 'role-paramedic' : 'role-aap').classList.add('selected');
         document.getElementById('display-role').innerText = "Role: " + r;
     }
-    selectRole('Paramedic');
 
     function toggleSettings() {
-        const p = document.getElementById('api-settings');
-        p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function saveApiKey() {
-        savedKey = document.getElementById('api-key-input').value.trim();
-        localStorage.setItem('PARAMEDIC_SIM_API_KEY', savedKey);
-        toggleSettings();
+        const s = document.getElementById('api-settings');
+        s.style.display = s.style.display === 'block' ? 'none' : 'block';
     }
 
     function resetRotation() {
-        jobCount = 0;
-        localStorage.setItem('PARAMEDIC_JOB_COUNT', 0);
-        alert("Rotation reset.");
+        localStorage.setItem('PARAMEDIC_JOB_COUNT', 1);
         location.reload();
     }
 
-    async function callGemini(prompt, sys, isJson = false) {
-        const apiKey = savedKey || "";
-        if(!apiKey) { 
-            alert("Please enter your Gemini API Key in the settings first."); 
-            return null; 
-        }
-
+    async function apiRequest(prompt, system, isJson = false) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-        
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
-            systemInstruction: { parts: [{ text: sys }] }
+            systemInstruction: { parts: [{ text: system }] }
         };
+        if (isJson) payload.generationConfig = { responseMimeType: "application/json" };
 
-        if(isJson) {
-            payload.generationConfig = { 
-                responseMimeType: "application/json"
-            };
-        }
-
-        const fetchWithRetry = async (retries = 0) => {
+        const retry = async (n) => {
             try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) throw new Error(response.statusText);
-                return await response.json();
-            } catch (err) {
-                if (retries < 5) {
-                    await new Promise(res => setTimeout(res, Math.pow(2, retries) * 1000));
-                    return fetchWithRetry(retries + 1);
+                const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
+                if (!res.ok) throw new Error();
+                return await res.json();
+            } catch (e) {
+                if (n < 3) {
+                    await new Promise(r => setTimeout(r, 1000 * n));
+                    return retry(n + 1);
                 }
-                throw err;
+                throw e;
             }
         };
 
         try {
-            const result = await fetchWithRetry();
-            const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-            return text;
+            const result = await retry(1);
+            return result.candidates?.[0]?.content?.parts?.[0]?.text;
         } catch (e) {
-            alert("Failed to communicate with CAD system. Please check your key or connection.");
+            console.error(e);
             return null;
         }
     }
 
-    function determineJobType() {
-        jobCount++;
-        localStorage.setItem('PARAMEDIC_JOB_COUNT', jobCount);
-        
-        const pos = jobCount % 20;
-        if (pos === 5) return "Category 1";
-        if (pos === 10) return "Major Trauma";
-        if (pos === 15) return "Major Incident";
-        if (pos === 0 && jobCount !== 0) return "Discharge/APP";
-        return "Routine";
-    }
-
-    async function generateScenario(isSpecific = false) {
-        const searchText = document.getElementById('scenario-search').value.trim();
-        
-        if (isSpecific) {
-            if (!searchText) {
-                alert("Please enter a scenario type to search.");
-                return;
-            }
-            currentType = "Requested: " + searchText;
-        } else {
-            currentType = determineJobType();
-        }
-
+    async function generateScenario(isSpecific) {
+        const loader = document.getElementById('loading-msg');
         const btn = document.getElementById('dispatch-btn');
-        const loadingMsg = document.getElementById('loading-msg');
+        const search = document.getElementById('scenario-search').value.trim();
         
+        loader.style.display = 'block';
         btn.disabled = true;
-        loadingMsg.style.display = 'block';
-        
-        const sysPrompt = `You are a SECAmb (South East Coast Ambulance Service) Clinical Scenario Generator.
-        Generate a realistic ${currentType} paramedic scenario. 
-        You MUST return valid JSON ONLY:
-        { 
-          "dispatch": "Brief CAD text", 
-          "loc": "Town in Kent/Sussex/Surrey", 
-          "cat": "Cat 1-4", 
-          "vitals": {"hr":80,"bp":"120/80","rr":16,"spo2":98,"temp":36.5,"gcs":15,"bm":5.5}, 
-          "diag": "Clinical Diagnosis", 
-          "mi_patients": [] 
-        }
-        
-        Special Instructions:
-        - If Category 1: Cardiac arrest or peri-arrest.
-        - If Major Trauma: Significant injury (RTC, Fall >2m).
-        - If Major Incident: Set 'mi_patients' to an array of 10 objects with 'desc' strings describing casualties.
-        - If Requested: Tailor the scenario specifically to the topic "${searchText}".`;
 
-        const res = await callGemini(isSpecific ? `Dispatch a job specifically about: ${searchText}` : `Dispatch a ${currentType} job.`, sysPrompt, true);
+        const jobType = isSpecific ? `about ${search}` : (jobCount % 5 === 0 ? "High Acuity (Cat 1/Trauma)" : "Routine");
+        const sys = `You are a SECAmb Dispatch System. Return JSON ONLY:
+        {
+            "dispatch": "Short CAD message",
+            "loc": "Town in South East England",
+            "cat": "1, 2, 3, or 4",
+            "type": "Routine/Trauma/MajorIncident",
+            "diag": "Actual underlying condition",
+            "vitals": {"hr":0, "bp":"0/0", "rr":0, "spo2":0, "gcs":15},
+            "mi_patients": []
+        }
+        For MajorIncident, provide 5 objects in mi_patients: {"desc": "Patient description"}`;
+
+        const res = await apiRequest(`Generate a ${jobType} case.`, sys, true);
         
-        if(res) {
-            try {
-                currentScenario = JSON.parse(res);
-                document.getElementById('dispatch-details').innerText = currentScenario.dispatch;
-                document.getElementById('dispatch-loc').innerText = currentScenario.loc;
-                document.getElementById('dispatch-cat').innerText = currentScenario.cat;
-                
-                document.getElementById('status-bar').style.display = 'flex';
-                document.getElementById('display-job-count').innerText = "Job: " + jobCount;
-                document.getElementById('display-type').innerText = "Type: " + currentType;
-                
-                showSection('dispatch');
-            } catch (err) {
-                alert("CAD Data Error. Please try again.");
-            }
+        if (res) {
+            currentScenario = JSON.parse(res);
+            document.getElementById('dispatch-details').innerText = currentScenario.dispatch;
+            document.getElementById('dispatch-loc').innerText = currentScenario.loc;
+            document.getElementById('dispatch-cat').innerText = "Category " + currentScenario.cat;
+            
+            document.querySelectorAll('.cad-summary').forEach(el => el.innerText = currentScenario.dispatch);
+            
+            document.getElementById('status-bar').style.display = 'flex';
+            document.getElementById('display-job-count').innerText = "Job: " + jobCount;
+            document.getElementById('display-type').innerText = "Type: " + currentScenario.type;
+            
+            showSection('dispatch');
+            jobCount++;
+            localStorage.setItem('PARAMEDIC_JOB_COUNT', jobCount);
+        } else {
+            alert("CAD System Error. Please try again.");
         }
         
+        loader.style.display = 'none';
         btn.disabled = false;
-        loadingMsg.style.display = 'none';
     }
 
     function showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById('section-' + id).classList.add('active');
-        window.scrollTo(0, 0);
-        updateSummaries();
-    }
-
-    function updateSummaries() {
-        if(!currentScenario) return;
-        // Only the CAD message is placed in the summary span now
-        document.getElementById('dispatch-summary-content').innerText = currentScenario.dispatch;
-        document.getElementById('treatment-summary-content').innerText = currentScenario.dispatch;
-    }
-
-    function goToAssessment() {
-        chatHistory = []; 
-        document.getElementById('chat-box').innerHTML = '';
-        if(currentType === "Major Incident" || currentScenario.mi_patients?.length > 0) {
-            document.getElementById('normal-assessment').style.display = 'none';
-            document.getElementById('major-incident-assessment').style.display = 'block';
-            renderMIPatients();
-        } else {
-            document.getElementById('normal-assessment').style.display = 'block';
-            document.getElementById('major-incident-assessment').style.display = 'none';
+        window.scrollTo(0,0);
+        
+        if (id === 'assessment') {
+            if (currentScenario.type === "MajorIncident") {
+                document.getElementById('normal-assessment').style.display = 'none';
+                document.getElementById('mi-assessment').style.display = 'block';
+                renderMI();
+            } else {
+                document.getElementById('normal-assessment').style.display = 'block';
+                document.getElementById('mi-assessment').style.display = 'none';
+            }
         }
-        showSection('assessment');
     }
 
-    function renderMIPatients() {
+    function renderMI() {
         const grid = document.getElementById('mi-patient-grid');
         grid.innerHTML = '';
-        (currentScenario.mi_patients || []).forEach((p, idx) => {
-            const card = document.createElement('div');
-            card.className = 'patient-card';
-            card.innerHTML = `
-                <p><strong>#${idx+1}:</strong> ${p.desc}</p>
-                <div id="tst-status-${idx}">Unset</div>
-                <button class="tst-btn tst-p1" onclick="setTriage(${idx}, 'P1')">P1</button>
-                <button class="tst-btn tst-p2" onclick="setTriage(${idx}, 'P2')">P2</button>
-                <button class="tst-btn tst-p3" onclick="setTriage(${idx}, 'P3')">P3</button>
-                <button class="tst-btn tst-dead" onclick="setTriage(${idx}, 'Dead')">D</button>
+        currentScenario.mi_patients.forEach((p, i) => {
+            const div = document.createElement('div');
+            div.className = 'patient-card';
+            div.innerHTML = `
+                <p><strong>Pt #${i+1}:</strong> ${p.desc}</p>
+                <div class="tst-btn-group">
+                    <button class="tst-btn tst-p1" onclick="this.parentElement.previousElementSibling.style.color='red'">P1</button>
+                    <button class="tst-btn tst-p2" onclick="this.parentElement.previousElementSibling.style.color='orange'">P2</button>
+                    <button class="tst-btn tst-p3" onclick="this.parentElement.previousElementSibling.style.color='green'">P3</button>
+                </div>
             `;
-            grid.appendChild(card);
+            grid.appendChild(div);
         });
     }
-
-    function setTriage(idx, cat) {
-        miTriage[idx] = cat;
-        document.getElementById(`tst-status-${idx}`).innerText = cat;
-    }
-
-    function goToTreatment() {
-        if(currentType === "Major Incident" || currentScenario.mi_patients?.length > 0) {
-            document.getElementById('normal-treatment').style.display = 'none';
-            document.getElementById('mi-treatment').style.display = 'block';
-        } else {
-            document.getElementById('normal-treatment').style.display = 'block';
-            document.getElementById('mi-treatment').style.display = 'none';
-            document.getElementById('handover-label').innerText = currentType === "Discharge/APP" ? "APP Handover:" : "ATMIST Handover:";
-        }
-        showSection('treatment');
-    }
-
-    function handleAssessmentKey(e) { if(e.key === 'Enter') sendMessage(); }
 
     async function sendMessage() {
         const input = document.getElementById('chat-input');
         const box = document.getElementById('chat-box');
-        const text = input.value.trim();
-        if(!text) return;
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        box.innerHTML += `<div class="message user"><div class="bubble">${msg}</div></div>`;
         input.value = '';
-        
-        box.innerHTML += `<div class="message user"><div class="bubble">${text}</div></div>`;
         box.scrollTop = box.scrollHeight;
 
-        const sys = `Patient Diagnosis: ${currentScenario.diag}. Vitals: ${JSON.stringify(currentScenario.vitals)}. 
-        Respond in character as the patient/bystander. Be realistic for SECAmb paramedics.`;
+        const sys = `You are a patient in a SECAmb paramedic sim. Diagnosis: ${currentScenario.diag}. Vitals: ${JSON.stringify(currentScenario.vitals)}. Respond realistically and briefly to the paramedic's action/question.`;
+        const res = await apiRequest(msg, sys);
         
-        const res = await callGemini(text, sys);
-        if(res) {
+        if (res) {
             box.innerHTML += `<div class="message bot"><div class="bubble">${res}</div></div>`;
-            chatHistory.push({q: text, a: res});
             box.scrollTop = box.scrollHeight;
         }
     }
 
     async function requestBackup() {
-        const t = document.getElementById('backup-type').value;
-        const sys = "You are EOC Dispatcher. Acknowledge backup request.";
-        const res = await callGemini(`Backup: ${t}`, sys);
-        document.getElementById('chat-box').innerHTML += `<div class="message bot"><div class="bubble"><strong>[EOC]:</strong> ${res}</div></div>`;
+        const type = document.getElementById('backup-type').value;
+        const res = await apiRequest(`I need ${type} at scene.`, "You are EOC Dispatcher. Acknowledge the request professionally.");
+        const box = document.getElementById('chat-box');
+        box.innerHTML += `<div class="message bot"><div class="bubble"><strong>[EOC]:</strong> ${res}</div></div>`;
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function goToManagement() {
+        showSection('treatment');
     }
 
     async function finishSim() {
         showSection('feedback');
         const content = document.getElementById('feedback-content');
-        content.innerHTML = "<p>Auditing performance...</p>";
+        content.innerHTML = "<p>Analyzing clinical decisions...</p>";
 
-        const sys = `Auditor for SECAmb. Evaluate performance. JSON ONLY: { "diag_review": "", "strengths": "", "improvements": "", "safety": "" }`;
-        const auditData = {
-            diag: currentScenario.diag,
+        const data = {
+            case: currentScenario.diag,
             treatment: document.getElementById('treatments').value,
             handover: document.getElementById('handover').value
         };
 
-        const res = await callGemini(JSON.stringify(auditData), sys, true);
-        if(res) {
+        const sys = `You are a Senior Clinical Auditor. Analyze the paramedic's work. JSON ONLY:
+        { "diagnosis_review": "", "strengths": "", "improvements": "", "safety_score": "0/10" }`;
+        
+        const res = await apiRequest(JSON.stringify(data), sys, true);
+        if (res) {
             const audit = JSON.parse(res);
             content.innerHTML = `
-                <div class="feedback-item diagnosis"><strong>Review:</strong> ${audit.diag_review}</div>
+                <div class="feedback-item diagnosis"><strong>Audit:</strong> ${audit.diagnosis_review}</div>
                 <div class="feedback-item strength"><strong>Strengths:</strong> ${audit.strengths}</div>
                 <div class="feedback-item improvement"><strong>Improvements:</strong> ${audit.improvements}</div>
-                <div class="feedback-item critical"><strong>Safety:</strong> ${audit.safety}</div>
+                <div class="feedback-item critical"><strong>Safety Score:</strong> ${audit.safety_score}</div>
             `;
         }
     }
 </script>
+
 </body>
 </html>
 
